@@ -31,16 +31,16 @@ import java.util.Objects;
 public final class BitBuffer
   implements Cloneable
 {
-  private BitSet data;
-  private int bitLength;
+  private BitSet _data;
+  private int _bitLength;
 
   /**
    * Constructs an empty bit buffer (length 0).
    */
   public BitBuffer()
   {
-    data = new BitSet();
-    bitLength = 0;
+    _data = new BitSet();
+    _bitLength = 0;
   }
 
   /**
@@ -50,7 +50,7 @@ public final class BitBuffer
    */
   public int bitLength()
   {
-    return bitLength;
+    return _bitLength;
   }
 
   /**
@@ -58,15 +58,15 @@ public final class BitBuffer
    *
    * @param index the index to get the bit at
    * @return the bit at the specified index
-   * @throws IndexOutOfBoundsException if index &lt; 0 or index &ge; bitLength
+   * @throws IndexOutOfBoundsException if index &lt; 0 or index &ge; _bitLength
    */
   public int getBit( int index )
   {
-    if ( index < 0 || index >= bitLength )
+    if ( index < 0 || index >= _bitLength )
     {
       throw new IndexOutOfBoundsException();
     }
-    return data.get( index ) ? 1 : 0;
+    return _data.get( index ) ? 1 : 0;
   }
 
   /**
@@ -77,10 +77,10 @@ public final class BitBuffer
    */
   public byte[] getBytes()
   {
-    byte[] result = new byte[ ( bitLength + 7 ) / 8 ];
-    for ( int i = 0; i < bitLength; i++ )
+    byte[] result = new byte[ ( _bitLength + 7 ) / 8 ];
+    for ( int i = 0; i < _bitLength; i++ )
     {
-      result[ i >>> 3 ] |= data.get( i ) ? 1 << ( 7 - ( i & 7 ) ) : 0;
+      result[ i >>> 3 ] |= _data.get( i ) ? 1 << ( 7 - ( i & 7 ) ) : 0;
     }
     return result;
   }
@@ -98,25 +98,25 @@ public final class BitBuffer
     {
       throw new IllegalArgumentException( "Value out of range" );
     }
-    for ( int i = len - 1; i >= 0; i--, bitLength++ )  // Append bit by bit
+    for ( int i = len - 1; i >= 0; i--, _bitLength++ )  // Append bit by bit
     {
-      data.set( bitLength, ( ( val >>> i ) & 1 ) != 0 );
+      _data.set( _bitLength, ( ( val >>> i ) & 1 ) != 0 );
     }
   }
 
   /**
-   * Appends the bit data of the specified segment to this bit buffer.
+   * Appends the bit _data of the specified segment to this bit buffer.
    *
-   * @param seg the segment whose data to append (not {@code null})
+   * @param seg the segment whose _data to append (not {@code null})
    * @throws NullPointerException if the segment is {@code null}
    */
   public void appendData( QrSegment seg )
   {
     Objects.requireNonNull( seg );
     BitBuffer bb = seg.data;
-    for ( int i = 0; i < bb.bitLength; i++, bitLength++ )  // Append bit by bit
+    for ( int i = 0; i < bb._bitLength; i++, _bitLength++ )  // Append bit by bit
     {
-      data.set( bitLength, bb.data.get( i ) );
+      _data.set( _bitLength, bb._data.get( i ) );
     }
   }
 
@@ -130,7 +130,7 @@ public final class BitBuffer
     try
     {
       BitBuffer result = (BitBuffer) super.clone();
-      result.data = (BitSet) result.data.clone();
+      result._data = (BitSet) result._data.clone();
       return result;
     }
     catch ( CloneNotSupportedException e )
