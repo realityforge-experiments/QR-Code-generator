@@ -92,7 +92,7 @@ public final class BitBuffer
    * @param val the value to append
    * @param len the number of low bits in the value to take
    */
-  public void appendBits( int val, int len )
+  public void appendBits( final int val, final int len )
   {
     if ( len < 0 || len > 31 || val >>> len != 0 )
     {
@@ -110,7 +110,7 @@ public final class BitBuffer
    * @param seg the segment whose _data to append (not {@code null})
    * @throws NullPointerException if the segment is {@code null}
    */
-  public void appendData( QrSegment seg )
+  public void appendData( final QrSegment seg )
   {
     Objects.requireNonNull( seg );
     BitBuffer bb = seg.data;
