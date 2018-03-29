@@ -21,7 +21,7 @@
  *   Software.
  */
 
-package io.nayuki.qrcodegen;
+package org.realityforge.gwt.qr_code;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;

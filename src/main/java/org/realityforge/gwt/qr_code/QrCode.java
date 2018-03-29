@@ -21,7 +21,7 @@
  *   Software.
  */
 
-package io.nayuki.qrcodegen;
+package org.realityforge.gwt.qr_code;
 
 import java.awt.image.BufferedImage;
 import java.util.Arrays;

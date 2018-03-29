@@ -20,7 +20,7 @@
  *   out of or in connection with the Software or the use or other dealings in the
  *   Software.
  */
-package io.nayuki.qrcodegen;
+package org.realityforge.gwt.qr_code;
 
 import java.util.BitSet;
 import java.util.Objects;

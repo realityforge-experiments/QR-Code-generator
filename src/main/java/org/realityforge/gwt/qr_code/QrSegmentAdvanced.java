@@ -21,7 +21,7 @@
  *   Software.
  */
 
-package io.nayuki.qrcodegen;
+package org.realityforge.gwt.qr_code;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -29,9 +29,9 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 import java.util.Objects;
-import static io.nayuki.qrcodegen.QrSegment.Mode.ALPHANUMERIC;
-import static io.nayuki.qrcodegen.QrSegment.Mode.BYTE;
-import static io.nayuki.qrcodegen.QrSegment.Mode.NUMERIC;
+import static org.realityforge.gwt.qr_code.QrSegment.Mode.ALPHANUMERIC;
+import static org.realityforge.gwt.qr_code.QrSegment.Mode.BYTE;
+import static org.realityforge.gwt.qr_code.QrSegment.Mode.NUMERIC;
 
 public final class QrSegmentAdvanced
 {
