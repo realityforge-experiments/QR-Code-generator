@@ -124,17 +124,11 @@ public final class BitBuffer
    *
    * @return a copy of this bit buffer object
    */
-  public BitBuffer clone()
+  public BitBuffer duplicate()
   {
-    try
-    {
-      BitBuffer result = (BitBuffer) super.clone();
-      result._data = (BitSet) result._data.clone();
-      return result;
-    }
-    catch ( CloneNotSupportedException e )
-    {
-      throw new AssertionError( e );
-    }
+    final BitBuffer result = new BitBuffer();
+    result._data = (BitSet) _data.clone();
+    result._bitLength = _bitLength;
+    return result;
   }
 }

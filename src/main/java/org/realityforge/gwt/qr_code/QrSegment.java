@@ -229,7 +229,7 @@ public final class QrSegment
     }
     mode = md;
     numChars = numCh;
-    this.data = data.clone();  // Make defensive copy
+    this.data = data.duplicate();  // Make defensive copy
   }
 
   // Package-private helper function.
