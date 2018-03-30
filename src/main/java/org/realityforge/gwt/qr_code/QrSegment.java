@@ -39,8 +39,20 @@ import java.util.regex.Pattern;
  */
 public final class QrSegment
 {
+  /**
+   * Can test whether a string is encodable in numeric mode (such as by using {@link #makeNumeric(String)}).
+   */
+  private static final Pattern NUMERIC_REGEX = Pattern.compile( "[0-9]*" );
 
-	/*---- Static factory functions ----*/
+  /**
+   * Can test whether a string is encodable in alphanumeric mode (such as by using {@link #makeAlphanumeric(String)}).
+   */
+  private static final Pattern ALPHANUMERIC_REGEX = Pattern.compile( "[A-Z0-9 $%*+./:-]*" );
+
+  /**
+   * The set of all legal characters in alphanumeric mode, where each character value maps to the index in the string.
+   */
+  private static final String ALPHANUMERIC_CHARSET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ $%*+-./:";
 
   /**
    * Returns a segment representing the specified binary data encoded in byte mode.
@@ -259,27 +271,4 @@ public final class QrSegment
     }
     return (int) result;
   }
-
-
-	/*---- Constants ----*/
-
-  /**
-   * Can test whether a string is encodable in numeric mode (such as by using {@link #makeNumeric(String)}).
-   */
-  public static final Pattern NUMERIC_REGEX = Pattern.compile( "[0-9]*" );
-
-  /**
-   * Can test whether a string is encodable in alphanumeric mode (such as by using {@link #makeAlphanumeric(String)}).
-   */
-  public static final Pattern ALPHANUMERIC_REGEX = Pattern.compile( "[A-Z0-9 $%*+./:-]*" );
-
-  /**
-   * The set of all legal characters in alphanumeric mode, where each character value maps to the index in the string.
-   */
-  private static final String ALPHANUMERIC_CHARSET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ $%*+-./:";
-
-
-
-	/*---- Public helper enumeration ----*/
-
 }
