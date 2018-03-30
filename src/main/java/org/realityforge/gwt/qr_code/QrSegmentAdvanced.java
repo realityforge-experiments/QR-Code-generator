@@ -29,15 +29,10 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 import java.util.Objects;
-import static org.realityforge.gwt.qr_code.QrSegment.Mode.ALPHANUMERIC;
-import static org.realityforge.gwt.qr_code.QrSegment.Mode.BYTE;
-import static org.realityforge.gwt.qr_code.QrSegment.Mode.NUMERIC;
+import static org.realityforge.gwt.qr_code.QrSegment.Mode.*;
 
 public final class QrSegmentAdvanced
 {
-
-	/*---- Optimal list of segments encoder ----*/
-
   /**
    * Returns a new mutable list of zero or more segments to represent the specified Unicode text string.
    * The resulting list optimally minimizes the total encoded bit length, subjected to the constraints given
@@ -201,7 +196,7 @@ public final class QrSegmentAdvanced
           curMode = BYTE;
         }
       }
-      else if ( curMode == BYTE )
+      else
       {
         if ( isNumeric( c ) && ( bitCosts[ 2 ][ i ] + 20 + 5 ) / 6 * 6 + bytesCost == bitCosts[ 0 ][ i + 1 ] )
         {
@@ -215,10 +210,6 @@ public final class QrSegmentAdvanced
         {
           curMode = BYTE;
         }
-      }
-      else
-      {
-        throw new AssertionError();
       }
       result[ i ] = curMode;
     }
