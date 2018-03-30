@@ -11,7 +11,7 @@ final class ReedSolomonGenerator
 {
   // Coefficients of the divisor polynomial, stored from highest to lowest power, excluding the leading term which
   // is always 1. For example the polynomial x^3 + 255x^2 + 8x + 93 is stored as the uint8 array {255, 8, 93}.
-  private final byte[] coefficients;
+  private final byte[] _coefficients;
 
   /**
    * Creates a Reed-Solomon ECC generator for the specified degree. This could be implemented
@@ -28,22 +28,22 @@ final class ReedSolomonGenerator
     }
 
     // Start with the monomial x^0
-    coefficients = new byte[ degree ];
-    coefficients[ degree - 1 ] = 1;
+    _coefficients = new byte[ degree ];
+    _coefficients[ degree - 1 ] = 1;
 
     // Compute the product polynomial (x - r^0) * (x - r^1) * (x - r^2) * ... * (x - r^{degree-1}),
-    // drop the highest term, and store the rest of the coefficients in order of descending powers.
+    // drop the highest term, and store the rest of the _coefficients in order of descending powers.
     // Note that r = 0x02, which is a generator element of this field GF(2^8/0x11D).
     int root = 1;
     for ( int i = 0; i < degree; i++ )
     {
       // Multiply the current product by (x - r^i)
-      for ( int j = 0; j < coefficients.length; j++ )
+      for ( int j = 0; j < _coefficients.length; j++ )
       {
-        coefficients[ j ] = (byte) multiply( coefficients[ j ] & 0xFF, root );
-        if ( j + 1 < coefficients.length )
+        _coefficients[ j ] = (byte) multiply( _coefficients[ j ] & 0xFF, root );
+        if ( j + 1 < _coefficients.length )
         {
-          coefficients[ j ] ^= coefficients[ j + 1 ];
+          _coefficients[ j ] ^= _coefficients[ j + 1 ];
         }
       }
       root = multiply( root, 0x02 );
@@ -64,7 +64,7 @@ final class ReedSolomonGenerator
     Objects.requireNonNull( data );
 
     // Compute the remainder by performing polynomial division
-    byte[] result = new byte[ coefficients.length ];
+    byte[] result = new byte[ _coefficients.length ];
     for ( byte b : data )
     {
       int factor = ( b ^ result[ 0 ] ) & 0xFF;
@@ -72,7 +72,7 @@ final class ReedSolomonGenerator
       result[ result.length - 1 ] = 0;
       for ( int i = 0; i < result.length; i++ )
       {
-        result[ i ] ^= multiply( coefficients[ i ] & 0xFF, factor );
+        result[ i ] ^= multiply( _coefficients[ i ] & 0xFF, factor );
       }
     }
     return result;
