@@ -361,10 +361,6 @@ public final class QrCode
     return sb.toString();
   }
 
-
-
-	/*---- Private helper methods for constructor: Drawing function modules ----*/
-
   private void drawFunctionPatterns()
   {
     // Draw horizontal and vertical timing patterns
