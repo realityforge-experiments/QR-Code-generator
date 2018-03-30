@@ -800,10 +800,6 @@ public final class QrCode
     return result;
   }
 
-
-
-	/*---- Private static helper functions ----*/
-
   // Returns a set of positions of the alignment patterns in ascending order. These positions are
   // used on both the x and y axes. Each value in the resulting array is in the range [0, 177).
   // This stateless pure function could be implemented as table of 40 variable-length lists of unsigned bytes.
