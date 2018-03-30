@@ -29,7 +29,6 @@ import java.util.Objects;
  * An appendable sequence of bits (0's and 1's).
  */
 public final class BitBuffer
-  implements Cloneable
 {
   private BitSet _data;
   private int _bitLength;
