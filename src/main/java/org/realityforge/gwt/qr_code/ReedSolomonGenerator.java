@@ -1,6 +1,9 @@
 package org.realityforge.gwt.qr_code;
 
 import java.util.Objects;
+import javax.annotation.Nonnull;
+import org.realityforge.braincheck.BrainCheckConfig;
+import static org.realityforge.braincheck.Guards.*;
 
 /**
  * Computes the Reed-Solomon error correction codewords for a sequence of data codewords
@@ -20,11 +23,11 @@ final class ReedSolomonGenerator
    * @param degree the divisor polynomial degree, which must be between 1 and 255
    * @throws IllegalArgumentException if degree &lt; 1 or degree > 255
    */
-  ReedSolomonGenerator( int degree )
+  ReedSolomonGenerator( final int degree )
   {
-    if ( degree < 1 || degree > 255 )
+    if ( BrainCheckConfig.checkApiInvariants() )
     {
-      throw new IllegalArgumentException( "Degree out of range" );
+      apiInvariant( () -> !( degree < 1 || degree > 255 ), () -> "Degree out of range" );
     }
 
     // Start with the monomial x^0
@@ -59,13 +62,12 @@ final class ReedSolomonGenerator
    * @return the Reed-Solomon error correction codewords
    * @throws NullPointerException if the data is {@code null}
    */
-  byte[] getRemainder( final byte[] data )
+  @Nonnull
+  byte[] getRemainder( @Nonnull final byte[] data )
   {
-    Objects.requireNonNull( data );
-
     // Compute the remainder by performing polynomial division
-    byte[] result = new byte[ _coefficients.length ];
-    for ( byte b : data )
+    final byte[] result = new byte[ _coefficients.length ];
+    for ( byte b : Objects.requireNonNull( data ) )
     {
       int factor = ( b ^ result[ 0 ] ) & 0xFF;
       System.arraycopy( result, 1, result, 0, result.length - 1 );
@@ -80,11 +82,11 @@ final class ReedSolomonGenerator
 
   // Returns the product of the two given field elements modulo GF(2^8/0x11D). The arguments and result
   // are unsigned 8-bit integers. This could be implemented as a lookup table of 256*256 entries of uint8.
-  private static int multiply( int x, int y )
+  private static int multiply( final int x, final int y )
   {
-    if ( x >>> 8 != 0 || y >>> 8 != 0 )
+    if ( BrainCheckConfig.checkApiInvariants() )
     {
-      throw new IllegalArgumentException( "Byte out of range" );
+      apiInvariant( () -> !( x >>> 8 != 0 || y >>> 8 != 0 ), () -> "Byte out of range" );
     }
     // Russian peasant multiplication
     int z = 0;
@@ -93,10 +95,11 @@ final class ReedSolomonGenerator
       z = ( z << 1 ) ^ ( ( z >>> 7 ) * 0x11D );
       z ^= ( ( y >>> i ) & 1 ) * x;
     }
-    if ( z >>> 8 != 0 )
+    final int result = z;
+    if ( BrainCheckConfig.checkInvariants() )
     {
-      throw new AssertionError();
+      invariant( () -> result >>> 8 == 0, () -> "Invalid value for result" );
     }
-    return z;
+    return result;
   }
 }
