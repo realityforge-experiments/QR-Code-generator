@@ -148,7 +148,7 @@ public final class QrCodeGeneratorDemo {
 		BitBuffer bb = new BitBuffer();
 		for (int c : kanjiChars)
 			bb.appendBits(c, 13);
-		segs = Arrays.asList(new QrSegment(QrSegment.Mode.KANJI, kanjiChars.length, bb));
+		segs = Arrays.asList(new QrSegment( Mode.KANJI, kanjiChars.length, bb));
 		qr = QrCode.encodeSegments( segs, Ecc.LOW);
 		writePng(qr.toImage(9, 4), "madoka-kanji-QR.png");
 	}

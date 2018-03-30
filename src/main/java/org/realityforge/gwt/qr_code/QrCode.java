@@ -156,7 +156,7 @@ public final class QrCode
     BitBuffer bb = new BitBuffer();
     for ( QrSegment seg : segs )
     {
-      bb.appendBits( seg.mode.modeBits, 4 );
+      bb.appendBits( seg.mode.getModeBits(), 4 );
       bb.appendBits( seg.numChars, seg.mode.numCharCountBits( version ) );
       bb.appendData( seg );
     }
