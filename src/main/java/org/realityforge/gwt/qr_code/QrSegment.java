@@ -232,19 +232,6 @@ public final class QrSegment
     this.data = data.clone();  // Make defensive copy
   }
 
-
-	/*---- Methods ----*/
-
-  /**
-   * Returns the data bits of this segment.
-   *
-   * @return the data bits of this segment (not {@code null})
-   */
-  public BitBuffer getBits()
-  {
-    return data.clone();  // Make defensive copy
-  }
-
   // Package-private helper function.
   static int getTotalBits( List<QrSegment> segs, int version )
   {

@@ -45,7 +45,7 @@ public final class QrSegmentAdvanced
    * constraint that the segment modes {NUMERIC, ALPHANUMERIC, BYTE} can be used but KANJI cannot be used.
    * <p>This function can be viewed as a significantly more sophisticated and slower replacement
    * for {@link QrSegment#makeSegments(String)}, but requiring more input parameters in a way
-   * that overlaps with {@link QrCode#encodeSegments(List, QrCode.Ecc, int, int, int, boolean)}.</p>
+   * that overlaps with {@link QrCode#encodeSegments(List, Ecc, int, int, int, boolean)}.</p>
    *
    * @param text       the text to be encoded, which can be any Unicode string
    * @param ecl        the error correction level to use
@@ -56,7 +56,7 @@ public final class QrSegmentAdvanced
    * @throws IllegalArgumentException if 1 &le; minVersion &le; maxVersion &le; 40 is violated,
    *                                  or if the data is too long to fit in a QR Code at maxVersion at the ECL
    */
-  public static List<QrSegment> makeSegmentsOptimally( String text, QrCode.Ecc ecl, int minVersion, int maxVersion )
+  public static List<QrSegment> makeSegmentsOptimally( String text, Ecc ecl, int minVersion, int maxVersion )
   {
     // Check arguments
     Objects.requireNonNull( text );

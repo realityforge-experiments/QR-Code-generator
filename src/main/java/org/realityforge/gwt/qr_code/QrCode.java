@@ -20,13 +20,14 @@
  *   out of or in connection with the Software or the use or other dealings in the
  *   Software.
  */
-
 package org.realityforge.gwt.qr_code;
 
 import java.awt.image.BufferedImage;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import javax.annotation.Nonnull;
 
 /**
  * Represents an immutable square grid of black and white cells for a QR Code symbol, and
@@ -49,12 +50,10 @@ public final class QrCode
    * @throws NullPointerException     if the text or error correction level is {@code null}
    * @throws IllegalArgumentException if the text fails to fit in the largest version QR Code, which means it is too long
    */
-  public static QrCode encodeText( String text, Ecc ecl )
+  public static QrCode encodeText( @Nonnull final String text,
+                                   @Nonnull final Ecc ecl )
   {
-    Objects.requireNonNull( text );
-    Objects.requireNonNull( ecl );
-    List<QrSegment> segs = QrSegment.makeSegments( text );
-    return encodeSegments( segs, ecl );
+    return encodeSegments( QrSegment.makeSegments( Objects.requireNonNull( text ) ), Objects.requireNonNull( ecl ) );
   }
 
   /**
@@ -69,12 +68,10 @@ public final class QrCode
    * @throws NullPointerException     if the data or error correction level is {@code null}
    * @throws IllegalArgumentException if the data fails to fit in the largest version QR Code, which means it is too long
    */
-  public static QrCode encodeBinary( byte[] data, Ecc ecl )
+  public static QrCode encodeBinary( @Nonnull final byte[] data, @Nonnull final Ecc ecl )
   {
-    Objects.requireNonNull( data );
-    Objects.requireNonNull( ecl );
-    QrSegment seg = QrSegment.makeBytes( data );
-    return encodeSegments( Arrays.asList( seg ), ecl );
+    return encodeSegments( Collections.singletonList( QrSegment.makeBytes( Objects.requireNonNull( data ) ) ),
+                           Objects.requireNonNull( ecl ) );
   }
 
   /**
@@ -90,7 +87,7 @@ public final class QrCode
    * @throws NullPointerException     if the list of segments, a segment, or the error correction level is {@code null}
    * @throws IllegalArgumentException if the data is too long to fit in the largest version QR Code at the ECL
    */
-  public static QrCode encodeSegments( List<QrSegment> segs, Ecc ecl )
+  public static QrCode encodeSegments( @Nonnull final List<QrSegment> segs, @Nonnull final Ecc ecl )
   {
     return encodeSegments( segs, ecl, MIN_VERSION, MAX_VERSION, -1, true );
   }
@@ -113,8 +110,8 @@ public final class QrCode
    * @throws IllegalArgumentException if 1 &le; minVersion &le; maxVersion &le; 40 is violated, or if mask
    *                                  &lt; &minus;1 or mask > 7, or if the data is too long to fit in a QR Code at maxVersion at the ECL
    */
-  public static QrCode encodeSegments( List<QrSegment> segs,
-                                       Ecc ecl,
+  public static QrCode encodeSegments( @Nonnull final List<QrSegment> segs,
+                                       @Nonnull Ecc ecl,
                                        int minVersion,
                                        int maxVersion,
                                        int mask,
@@ -143,10 +140,6 @@ public final class QrCode
       {
         throw new IllegalArgumentException( "Data too long" );
       }
-    }
-    if ( dataUsedBits == -1 )
-    {
-      throw new AssertionError();
     }
 
     // Increase the error correction level while the data still fits in the current version number
@@ -226,9 +219,6 @@ public final class QrCode
   private boolean[][] modules;     // The modules of this QR Code symbol (false = white, true = black)
   private boolean[][] isFunction;  // Indicates function modules that are not subjected to masking
 
-
-
-	/*---- Constructors ----*/
 
   /**
    * Creates a new QR Code symbol with the specified version number, error correction level, binary data array, and mask number.
@@ -417,7 +407,7 @@ public final class QrCode
   private void drawFormatBits( int mask )
   {
     // Calculate error correction code and pack bits
-    int data = errorCorrectionLevel.formatBits << 3 | mask;  // errCorrLvl is uint2, mask is uint3
+    int data = errorCorrectionLevel.getFormatBits() << 3 | mask;  // errCorrLvl is uint2, mask is uint3
     int rem = data;
     for ( int i = 0; i < 10; i++ )
     {
@@ -897,10 +887,10 @@ public final class QrCode
   }
 
 	// For use in getPenaltyScore(), when evaluating which mask is best.
-	private static final int PENALTY_N1 = 3;
-	private static final int PENALTY_N2 = 3;
-	private static final int PENALTY_N3 = 40;
-	private static final int PENALTY_N4 = 10;
+  private static final int PENALTY_N1 = 3;
+  private static final int PENALTY_N2 = 3;
+  private static final int PENALTY_N3 = 40;
+  private static final int PENALTY_N4 = 10;
 
 	// @formatter:off
 	private static final byte[][] ECC_CODEWORDS_PER_BLOCK = {
@@ -921,128 +911,4 @@ public final class QrCode
 		{-1, 1, 1, 2, 4, 4, 4, 5, 6, 8, 8, 11, 11, 16, 16, 18, 16, 19, 21, 25, 25, 25, 34, 30, 32, 35, 37, 40, 42, 45, 48, 51, 54, 57, 60, 63, 66, 70, 74, 77, 81},  // High
 	};
 	// @formatter:on
-
-  /**
-   * Represents the error correction level used in a QR Code symbol.
-   */
-  public enum Ecc
-  {
-    // These enum constants must be declared in ascending order of error protection,
-    // for the sake of the implicit ordinal() method and values() function.
-    LOW( 1 ), MEDIUM( 0 ), QUARTILE( 3 ), HIGH( 2 );
-
-    // In the range 0 to 3 (unsigned 2-bit integer).
-    final int formatBits;
-
-    // Constructor.
-    private Ecc( int fb )
-    {
-      formatBits = fb;
-    }
-  }
-
-  /**
-   * Computes the Reed-Solomon error correction codewords for a sequence of data codewords
-   * at a given degree. Objects are immutable, and the state only depends on the degree.
-   * This class exists because each data block in a QR Code shares the same the divisor polynomial.
-   */
-  private static final class ReedSolomonGenerator
-  {
-
-		/*-- Immutable field --*/
-
-    // Coefficients of the divisor polynomial, stored from highest to lowest power, excluding the leading term which
-    // is always 1. For example the polynomial x^3 + 255x^2 + 8x + 93 is stored as the uint8 array {255, 8, 93}.
-    private final byte[] coefficients;
-
-
-		/*-- Constructor --*/
-
-    /**
-     * Creates a Reed-Solomon ECC generator for the specified degree. This could be implemented
-     * as a lookup table over all possible parameter values, instead of as an algorithm.
-     *
-     * @param degree the divisor polynomial degree, which must be between 1 and 255
-     * @throws IllegalArgumentException if degree &lt; 1 or degree > 255
-     */
-    public ReedSolomonGenerator( int degree )
-    {
-      if ( degree < 1 || degree > 255 )
-      {
-        throw new IllegalArgumentException( "Degree out of range" );
-      }
-
-      // Start with the monomial x^0
-      coefficients = new byte[ degree ];
-      coefficients[ degree - 1 ] = 1;
-
-      // Compute the product polynomial (x - r^0) * (x - r^1) * (x - r^2) * ... * (x - r^{degree-1}),
-      // drop the highest term, and store the rest of the coefficients in order of descending powers.
-      // Note that r = 0x02, which is a generator element of this field GF(2^8/0x11D).
-      int root = 1;
-      for ( int i = 0; i < degree; i++ )
-      {
-        // Multiply the current product by (x - r^i)
-        for ( int j = 0; j < coefficients.length; j++ )
-        {
-          coefficients[ j ] = (byte) multiply( coefficients[ j ] & 0xFF, root );
-          if ( j + 1 < coefficients.length )
-          {
-            coefficients[ j ] ^= coefficients[ j + 1 ];
-          }
-        }
-        root = multiply( root, 0x02 );
-      }
-    }
-
-    /**
-     * Computes and returns the Reed-Solomon error correction codewords for the specified
-     * sequence of data codewords. The returned object is always a new byte array.
-     * This method does not alter this object's state (because it is immutable).
-     *
-     * @param data the sequence of data codewords
-     * @return the Reed-Solomon error correction codewords
-     * @throws NullPointerException if the data is {@code null}
-     */
-    public byte[] getRemainder( final byte[] data )
-    {
-      Objects.requireNonNull( data );
-
-      // Compute the remainder by performing polynomial division
-      byte[] result = new byte[ coefficients.length ];
-      for ( byte b : data )
-      {
-        int factor = ( b ^ result[ 0 ] ) & 0xFF;
-        System.arraycopy( result, 1, result, 0, result.length - 1 );
-        result[ result.length - 1 ] = 0;
-        for ( int i = 0; i < result.length; i++ )
-        {
-          result[ i ] ^= multiply( coefficients[ i ] & 0xFF, factor );
-        }
-      }
-      return result;
-    }
-
-    // Returns the product of the two given field elements modulo GF(2^8/0x11D). The arguments and result
-    // are unsigned 8-bit integers. This could be implemented as a lookup table of 256*256 entries of uint8.
-    private static int multiply( int x, int y )
-    {
-      if ( x >>> 8 != 0 || y >>> 8 != 0 )
-      {
-        throw new IllegalArgumentException( "Byte out of range" );
-      }
-      // Russian peasant multiplication
-      int z = 0;
-      for ( int i = 7; i >= 0; i-- )
-      {
-        z = ( z << 1 ) ^ ( ( z >>> 7 ) * 0x11D );
-        z ^= ( ( y >>> i ) & 1 ) * x;
-      }
-      if ( z >>> 8 != 0 )
-      {
-        throw new AssertionError();
-      }
-      return z;
-    }
-  }
 }
