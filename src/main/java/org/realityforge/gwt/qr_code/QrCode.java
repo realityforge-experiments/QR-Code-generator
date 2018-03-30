@@ -386,11 +386,7 @@ public final class QrCode
     {
       for ( int j = 0; j < numAlign; j++ )
       {
-        if ( i == 0 && j == 0 || i == 0 && j == numAlign - 1 || i == numAlign - 1 && j == 0 )
-        {
-          continue;  // Skip the three finder corners
-        }
-        else
+        if ( ( i != 0 || j != 0 ) && ( i != 0 || j != numAlign - 1 ) && ( i != numAlign - 1 || j != 0 ) )
         {
           drawAlignmentPattern( alignPatPos[ i ], alignPatPos[ j ] );
         }
