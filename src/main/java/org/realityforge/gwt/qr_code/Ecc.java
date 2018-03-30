@@ -10,15 +10,15 @@ public enum Ecc
   LOW( 1 ), MEDIUM( 0 ), QUARTILE( 3 ), HIGH( 2 );
 
   // In the range 0 to 3 (unsigned 2-bit integer).
-  private final int formatBits;
+  private final int _formatBits;
 
-  Ecc( int fb )
+  Ecc( int formatBits )
   {
-    formatBits = fb;
+    _formatBits = formatBits;
   }
 
   int getFormatBits()
   {
-    return formatBits;
+    return _formatBits;
   }
 }
