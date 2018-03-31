@@ -201,7 +201,7 @@ public final class QrCode
       throw new IllegalArgumentException( "Border too large" );
     }
 
-    StringBuilder sb = new StringBuilder();
+    final StringBuilder sb = new StringBuilder();
     final int dimension = _size + border * 2;
     sb.append( "<svg xmlns=\"http://www.w3.org/2000/svg\" _version=\"1.1\" viewBox=\"0 0 " )
       .append( dimension )
