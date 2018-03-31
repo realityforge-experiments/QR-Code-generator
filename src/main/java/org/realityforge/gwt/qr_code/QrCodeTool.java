@@ -250,75 +250,6 @@ public final class QrCodeTool
     return result;
   }
 
-  // Returns the number of 8-bit data (i.e. not error correction) codewords contained in any
-  // QR Code of the given version number and error correction level, with remainder bits discarded.
-  // This stateless pure function could be implemented as a (40*4)-cell lookup table.
-  private static int getNumDataCodewords( final int version, @Nonnull final Ecc ecl )
-  {
-    if ( BrainCheckConfig.checkApiInvariants() )
-    {
-      apiInvariant( () -> isVersionValid( version ),
-                    () -> "Version value specified '" + version + "' is out of range." );
-    }
-    return getNumRawDataModules( version ) /
-           8 -
-           ECC_CODEWORDS_PER_BLOCK[ ecl.ordinal() ][ version ] *
-           NUM_ERROR_CORRECTION_BLOCKS[ ecl.ordinal() ][ version ];
-  }
-
-  // Returns a set of positions of the alignment patterns in ascending order. These positions are
-  // used on both the x and y axes. Each value in the resulting array is in the range [0, 177).
-  // This stateless pure function could be implemented as table of 40 variable-length lists of unsigned bytes.
-  static int[] getAlignmentPatternPositions( final int version )
-  {
-    if ( BrainCheckConfig.checkApiInvariants() )
-    {
-      apiInvariant( () -> isVersionValid( version ),
-                    () -> "Version value specified '" + version + "' is out of range." );
-    }
-    if ( 1 == version )
-    {
-      return new int[]{};
-    }
-    else
-    {
-      int numAlign = version / 7 + 2;
-      int step;
-      if ( version != 32 )
-      {
-        // ceil((size - 13) / (2*numAlign - 2)) * 2
-        step = ( version * 4 + numAlign * 2 + 1 ) / ( 2 * numAlign - 2 ) * 2;
-      }
-      else  // C-C-C-Combo breaker!
-      {
-        step = 26;
-      }
-
-      int[] result = new int[ numAlign ];
-      result[ 0 ] = 6;
-      for ( int i = result.length - 1, pos = version * 4 + 10; i >= 1; i--, pos -= step )
-      {
-        result[ i ] = pos;
-      }
-      return result;
-    }
-  }
-
-  static boolean isMaskValid( final int mask )
-  {
-    return MIN_MASK <= mask && MAX_MASK >= mask;
-  }
-
-  static boolean isVersionValid( final int version )
-  {
-    return MIN_VERSION <= version && MAX_VERSION >= version;
-  }
-
-  static boolean isDataLengthValid( final int version, @Nonnull final Ecc errorCorrectionLevel, final int dataLength )
-  {
-    return dataLength == getNumDataCodewords( version, errorCorrectionLevel );
-  }
-
   /**
    * Returns a segment representing the specified binary data encoded in byte mode.
    *
@@ -402,38 +333,6 @@ public final class QrCodeTool
   }
 
   /**
-   * Returns a new mutable list of zero or more segments to represent the specified Unicode text string.
-   * The result may use various segment modes and switch modes to optimize the length of the bit stream.
-   *
-   * @param text the text to be encoded, which can be any Unicode string
-   * @return a list of segments containing the text
-   */
-  @Nonnull
-  private static List<QrSegment> makeSegments( @Nonnull final String text )
-  {
-    Objects.requireNonNull( text );
-
-    // Select the most efficient segment encoding automatically
-    final List<QrSegment> result = new ArrayList<>();
-    if ( !text.isEmpty() )
-    {
-      if ( NUMERIC_REGEX.test( text ) )
-      {
-        result.add( makeNumericSegment( text ) );
-      }
-      else if ( ALPHANUMERIC_REGEX.test( text ) )
-      {
-        result.add( makeAlphanumericSegment( text ) );
-      }
-      else
-      {
-        result.add( makeBytesSegment( text.getBytes( StandardCharsets.UTF_8 ) ) );
-      }
-    }
-    return result;
-  }
-
-  /**
    * Returns a segment representing an Extended Channel Interpretation
    * (ECI) designator with the specified assignment value.
    *
@@ -466,6 +365,107 @@ public final class QrCodeTool
       }
     }
     return new QrSegment( Mode.ECI, 0, bb );
+  }
+
+  // Returns the number of 8-bit data (i.e. not error correction) codewords contained in any
+  // QR Code of the given version number and error correction level, with remainder bits discarded.
+  // This stateless pure function could be implemented as a (40*4)-cell lookup table.
+  private static int getNumDataCodewords( final int version, @Nonnull final Ecc ecl )
+  {
+    if ( BrainCheckConfig.checkApiInvariants() )
+    {
+      apiInvariant( () -> isVersionValid( version ),
+                    () -> "Version value specified '" + version + "' is out of range." );
+    }
+    return getNumRawDataModules( version ) /
+           8 -
+           ECC_CODEWORDS_PER_BLOCK[ ecl.ordinal() ][ version ] *
+           NUM_ERROR_CORRECTION_BLOCKS[ ecl.ordinal() ][ version ];
+  }
+
+  // Returns a set of positions of the alignment patterns in ascending order. These positions are
+  // used on both the x and y axes. Each value in the resulting array is in the range [0, 177).
+  // This stateless pure function could be implemented as table of 40 variable-length lists of unsigned bytes.
+  static int[] getAlignmentPatternPositions( final int version )
+  {
+    if ( BrainCheckConfig.checkApiInvariants() )
+    {
+      apiInvariant( () -> isVersionValid( version ),
+                    () -> "Version value specified '" + version + "' is out of range." );
+    }
+    if ( 1 == version )
+    {
+      return new int[]{};
+    }
+    else
+    {
+      int numAlign = version / 7 + 2;
+      int step;
+      if ( version != 32 )
+      {
+        // ceil((size - 13) / (2*numAlign - 2)) * 2
+        step = ( version * 4 + numAlign * 2 + 1 ) / ( 2 * numAlign - 2 ) * 2;
+      }
+      else  // C-C-C-Combo breaker!
+      {
+        step = 26;
+      }
+
+      int[] result = new int[ numAlign ];
+      result[ 0 ] = 6;
+      for ( int i = result.length - 1, pos = version * 4 + 10; i >= 1; i--, pos -= step )
+      {
+        result[ i ] = pos;
+      }
+      return result;
+    }
+  }
+
+  static boolean isMaskValid( final int mask )
+  {
+    return MIN_MASK <= mask && MAX_MASK >= mask;
+  }
+
+  static boolean isVersionValid( final int version )
+  {
+    return MIN_VERSION <= version && MAX_VERSION >= version;
+  }
+
+  static boolean isDataLengthValid( final int version, @Nonnull final Ecc errorCorrectionLevel, final int dataLength )
+  {
+    return dataLength == getNumDataCodewords( version, errorCorrectionLevel );
+  }
+
+  /**
+   * Returns a new mutable list of zero or more segments to represent the specified Unicode text string.
+   * The result may use various segment modes and switch modes to optimize the length of the bit stream.
+   *
+   * @param text the text to be encoded, which can be any Unicode string
+   * @return a list of segments containing the text
+   */
+  @Nonnull
+  private static List<QrSegment> makeSegments( @Nonnull final String text )
+  {
+    Objects.requireNonNull( text );
+
+    // Select the most efficient segment encoding automatically
+    final List<QrSegment> result = new ArrayList<>();
+    if ( !text.isEmpty() )
+    {
+      if ( NUMERIC_REGEX.test( text ) )
+      {
+        result.add( makeNumericSegment( text ) );
+      }
+      else if ( ALPHANUMERIC_REGEX.test( text ) )
+      {
+        result.add( makeAlphanumericSegment( text ) );
+      }
+      else
+      {
+        result.add( makeBytesSegment( text.getBytes( StandardCharsets.UTF_8 ) ) );
+      }
+    }
+    return result;
   }
 
   private static int getTotalBits( @Nonnull final List<QrSegment> segments, final int version )
