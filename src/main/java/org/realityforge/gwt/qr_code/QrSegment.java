@@ -26,6 +26,8 @@ package org.realityforge.gwt.qr_code;
 import java.util.Objects;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
+import org.realityforge.braincheck.BrainCheckConfig;
+import static org.realityforge.braincheck.Guards.*;
 
 /**
  * Represents a character string to be encoded in a QR Code symbol. Each segment has
@@ -47,23 +49,21 @@ public final class QrSegment
   /**
    * Creates a new QR Code data segment with the specified parameters and data.
    *
-   * @param md    the mode, which is not {@code null}
-   * @param numCh the data length in characters, which is non-negative
+   * @param mode    the mode, which is not {@code null}
+   * @param numChars the data length in characters, which is non-negative
    * @param data  the data bits of this segment, which is not {@code null}
    * @throws NullPointerException     if the mode or bit buffer is {@code null}
    * @throws IllegalArgumentException if the character count is negative
    */
-  public QrSegment( Mode md, int numCh, BitBuffer data )
+  public QrSegment( final @Nonnull Mode mode, @Nonnegative final int numChars, @Nonnull final BitBuffer data )
   {
-    Objects.requireNonNull( md );
-    Objects.requireNonNull( data );
-    if ( numCh < 0 )
+    if ( BrainCheckConfig.checkInvariants() )
     {
-      throw new IllegalArgumentException( "Invalid value" );
+      invariant( () -> numChars >= 0, () -> "numChars must be non-negative" );
     }
-    _mode = md;
-    _numChars = numCh;
-    this._data = data.duplicate();  // Make defensive copy
+    _mode = Objects.requireNonNull( mode );
+    _numChars = numChars;
+    _data = Objects.requireNonNull( data ).duplicate();
   }
 
   /**
