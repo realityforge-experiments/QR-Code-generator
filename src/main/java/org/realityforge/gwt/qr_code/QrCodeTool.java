@@ -22,6 +22,9 @@
  */
 package org.realityforge.gwt.qr_code;
 
+import elemental2.core.JsRegExp;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -56,6 +59,19 @@ public final class QrCodeTool
   // @formatter:on
 
   /**
+   * Can test whether a string is encodable in numeric mode (such as by using {@link #makeNumeric(String)}).
+   */
+  private static final JsRegExp NUMERIC_REGEX = new JsRegExp( "^[0-9]+$" );
+  /**
+   * Can test whether a string is encodable in alphanumeric mode (such as by using {@link #makeAlphanumeric(String)}).
+   */
+  private static final JsRegExp ALPHANUMERIC_REGEX = new JsRegExp( "^[A-Z0-9 $%*+./:-]*$" );
+  /**
+   * The set of all legal characters in alphanumeric mode, where each character value maps to the index in the string.
+   */
+  private static final String ALPHANUMERIC_CHARSET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ $%*+-./:";
+
+  /**
    * Returns a QR Code symbol representing the specified Unicode text string at the specified error correction level.
    * As a conservative upper bound, this function is guaranteed to succeed for strings that have 738 or fewer
    * Unicode code points (not UTF-16 code units) if the low error correction level is used. The smallest possible
@@ -71,7 +87,7 @@ public final class QrCodeTool
   public static QrCode encodeText( @Nonnull final String text,
                                    @Nonnull final Ecc ecl )
   {
-    return encodeSegments( QrSegment.makeSegments( Objects.requireNonNull( text ) ), Objects.requireNonNull( ecl ) );
+    return encodeSegments( makeSegments( Objects.requireNonNull( text ) ), Objects.requireNonNull( ecl ) );
   }
 
   /**
@@ -88,7 +104,7 @@ public final class QrCodeTool
    */
   public static QrCode encodeBinary( @Nonnull final byte[] data, @Nonnull final Ecc ecl )
   {
-    return encodeSegments( Collections.singletonList( QrSegment.makeBytes( Objects.requireNonNull( data ) ) ),
+    return encodeSegments( Collections.singletonList( makeBytes( Objects.requireNonNull( data ) ) ),
                            Objects.requireNonNull( ecl ) );
   }
 
@@ -153,7 +169,7 @@ public final class QrCodeTool
     for ( version = minVersion; ; version++ )
     {
       int dataCapacityBits = getNumDataCodewords( version, ecl ) * 8;  // Number of data bits available
-      dataUsedBits = QrSegment.getTotalBits( segs, version );
+      dataUsedBits = getTotalBits( segs, version );
       if ( dataUsedBits != -1 && dataUsedBits <= dataCapacityBits )
       {
         break;  // This version number is found to be suitable
@@ -295,5 +311,175 @@ public final class QrCodeTool
   static boolean isVersionValid( final int version )
   {
     return MIN_VERSION <= version && MAX_VERSION >= version;
+  }
+
+  /**
+   * Returns a segment representing the specified binary data encoded in byte mode.
+   *
+   * @param data the binary data
+   * @return a segment containing the data
+   */
+  public static QrSegment makeBytes( @Nonnull final byte[] data )
+  {
+    Objects.requireNonNull( data );
+    BitBuffer bb = new BitBuffer();
+    for ( byte b : data )
+    {
+      bb.appendBits( b & 0xFF, 8 );
+    }
+    return new QrSegment( Mode.BYTE, data.length, bb );
+  }
+
+  /**
+   * Returns a segment representing the specified string of decimal digits encoded in numeric mode.
+   *
+   * @param digits a string consisting of digits from 0 to 9
+   * @return a segment containing the data
+   * @throws NullPointerException     if the string is {@code null}
+   * @throws IllegalArgumentException if the string contains non-digit characters
+   */
+  public static QrSegment makeNumeric( @Nonnull final String digits )
+  {
+    Objects.requireNonNull( digits );
+    if ( !NUMERIC_REGEX.test( digits ) )
+    {
+      throw new IllegalArgumentException( "String contains non-numeric characters" );
+    }
+
+    BitBuffer bb = new BitBuffer();
+    int i;
+    for ( i = 0; i + 3 <= digits.length(); i += 3 )  // Process groups of 3
+    {
+      bb.appendBits( Integer.parseInt( digits.substring( i, i + 3 ) ), 10 );
+    }
+    int rem = digits.length() - i;
+    if ( rem > 0 )  // 1 or 2 digits remaining
+    {
+      bb.appendBits( Integer.parseInt( digits.substring( i ) ), rem * 3 + 1 );
+    }
+    return new QrSegment( Mode.NUMERIC, digits.length(), bb );
+  }
+
+  /**
+   * Returns a segment representing the specified text string encoded in alphanumeric mode.
+   * The characters allowed are: 0 to 9, A to Z (uppercase only), space,
+   * dollar, percent, asterisk, plus, hyphen, period, slash, colon.
+   *
+   * @param text a string of text, with only certain characters allowed
+   * @return a segment containing the data
+   * @throws IllegalArgumentException if the string contains non-encodable characters
+   */
+  public static QrSegment makeAlphanumeric( @Nonnull final String text )
+  {
+    Objects.requireNonNull( text );
+    if ( !ALPHANUMERIC_REGEX.test( text ) )
+    {
+      throw new IllegalArgumentException( "String contains unencodable characters in alphanumeric mode" );
+    }
+
+    BitBuffer bb = new BitBuffer();
+    int i;
+    for ( i = 0; i + 2 <= text.length(); i += 2 )
+    {  // Process groups of 2
+      int temp = ALPHANUMERIC_CHARSET.indexOf( text.charAt( i ) ) * 45;
+      temp += ALPHANUMERIC_CHARSET.indexOf( text.charAt( i + 1 ) );
+      bb.appendBits( temp, 11 );
+    }
+    if ( i < text.length() )  // 1 character remaining
+    {
+      bb.appendBits( ALPHANUMERIC_CHARSET.indexOf( text.charAt( i ) ), 6 );
+    }
+    return new QrSegment( Mode.ALPHANUMERIC, text.length(), bb );
+  }
+
+  /**
+   * Returns a new mutable list of zero or more segments to represent the specified Unicode text string.
+   * The result may use various segment modes and switch modes to optimize the length of the bit stream.
+   *
+   * @param text the text to be encoded, which can be any Unicode string
+   * @return a list of segments containing the text
+   */
+  public static List<QrSegment> makeSegments( @Nonnull final String text )
+  {
+    Objects.requireNonNull( text );
+
+    // Select the most efficient segment encoding automatically
+    final List<QrSegment> result = new ArrayList<>();
+    if ( !text.isEmpty() )
+    {
+      if ( NUMERIC_REGEX.test( text ) )
+      {
+        result.add( makeNumeric( text ) );
+      }
+      else if ( ALPHANUMERIC_REGEX.test( text ) )
+      {
+        result.add( makeAlphanumeric( text ) );
+      }
+      else
+      {
+        result.add( makeBytes( text.getBytes( StandardCharsets.UTF_8 ) ) );
+      }
+    }
+    return result;
+  }
+
+  /**
+   * Returns a segment representing an Extended Channel Interpretation
+   * (ECI) designator with the specified assignment value.
+   *
+   * @param assignVal the ECI assignment number (see the AIM ECI specification)
+   * @return a segment containing the data
+   * @throws IllegalArgumentException if the value is outside the range [0, 10<sup>6</sup>)
+   */
+  public static QrSegment makeEci( final int assignVal )
+  {
+    BitBuffer bb = new BitBuffer();
+    if ( 0 <= assignVal && assignVal < ( 1 << 7 ) )
+    {
+      bb.appendBits( assignVal, 8 );
+    }
+    else if ( ( 1 << 7 ) <= assignVal && assignVal < ( 1 << 14 ) )
+    {
+      bb.appendBits( 2, 2 );
+      bb.appendBits( assignVal, 14 );
+    }
+    else if ( ( 1 << 14 ) <= assignVal && assignVal < 1000000 )
+    {
+      bb.appendBits( 6, 3 );
+      bb.appendBits( assignVal, 21 );
+    }
+    else
+    {
+      if ( BrainCheckConfig.checkInvariants() )
+      {
+        fail( () -> "ECI assignment value out of range" );
+      }
+    }
+    return new QrSegment( Mode.ECI, 0, bb );
+  }
+
+  private static int getTotalBits( @Nonnull final List<QrSegment> segs, final int version )
+  {
+    Objects.requireNonNull( segs );
+    apiInvariant( () -> isVersionValid( version ),
+                  () -> "Version value specified '" + version + "' is out of range." );
+
+    long result = 0;
+    for ( QrSegment seg : segs )
+    {
+      Objects.requireNonNull( seg );
+      int ccbits = seg.mode.numCharCountBits( version );
+      // Fail if segment length value doesn't fit in the length field's bit-width
+      if ( seg.numChars >= ( 1 << ccbits ) )
+      {
+        return -1;
+      }
+      result += 4L + ccbits + seg.data.bitLength();
+      if ( result > Integer.MAX_VALUE )
+      {
+        return -1;
+      }
+    }
+    return (int) result;
   }
 }
