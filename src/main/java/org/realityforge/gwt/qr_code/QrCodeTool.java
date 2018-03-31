@@ -59,11 +59,11 @@ public final class QrCodeTool
   // @formatter:on
 
   /**
-   * Can test whether a string is encodable in numeric mode (such as by using {@link #makeNumeric(String)}).
+   * Can test whether a string is encodable in numeric mode (such as by using {@link #makeNumericSegment(String)}).
    */
   private static final JsRegExp NUMERIC_REGEX = new JsRegExp( "^[0-9]+$" );
   /**
-   * Can test whether a string is encodable in alphanumeric mode (such as by using {@link #makeAlphanumeric(String)}).
+   * Can test whether a string is encodable in alphanumeric mode (such as by using {@link #makeAlphanumericSegment(String)}).
    */
   private static final JsRegExp ALPHANUMERIC_REGEX = new JsRegExp( "^[A-Z0-9 $%*+./:-]*$" );
   /**
@@ -104,7 +104,7 @@ public final class QrCodeTool
    */
   public static QrCode encodeBinary( @Nonnull final byte[] data, @Nonnull final Ecc ecl )
   {
-    return encodeSegments( Collections.singletonList( makeBytes( Objects.requireNonNull( data ) ) ),
+    return encodeSegments( Collections.singletonList( makeBytesSegment( Objects.requireNonNull( data ) ) ),
                            Objects.requireNonNull( ecl ) );
   }
 
@@ -325,7 +325,7 @@ public final class QrCodeTool
    * @param data the binary data
    * @return a segment containing the data
    */
-  public static QrSegment makeBytes( @Nonnull final byte[] data )
+  public static QrSegment makeBytesSegment( @Nonnull final byte[] data )
   {
     Objects.requireNonNull( data );
     BitBuffer bb = new BitBuffer();
@@ -344,7 +344,7 @@ public final class QrCodeTool
    * @throws NullPointerException     if the string is {@code null}
    * @throws IllegalArgumentException if the string contains non-digit characters
    */
-  public static QrSegment makeNumeric( @Nonnull final String digits )
+  public static QrSegment makeNumericSegment( @Nonnull final String digits )
   {
     Objects.requireNonNull( digits );
     if ( BrainCheckConfig.checkInvariants() )
@@ -375,7 +375,7 @@ public final class QrCodeTool
    * @return a segment containing the data
    * @throws IllegalArgumentException if the string contains non-encodable characters
    */
-  public static QrSegment makeAlphanumeric( @Nonnull final String text )
+  public static QrSegment makeAlphanumericSegment( @Nonnull final String text )
   {
     Objects.requireNonNull( text );
     if ( BrainCheckConfig.checkInvariants() )
@@ -419,15 +419,15 @@ public final class QrCodeTool
     {
       if ( NUMERIC_REGEX.test( text ) )
       {
-        result.add( makeNumeric( text ) );
+        result.add( makeNumericSegment( text ) );
       }
       else if ( ALPHANUMERIC_REGEX.test( text ) )
       {
-        result.add( makeAlphanumeric( text ) );
+        result.add( makeAlphanumericSegment( text ) );
       }
       else
       {
-        result.add( makeBytes( text.getBytes( StandardCharsets.UTF_8 ) ) );
+        result.add( makeBytesSegment( text.getBytes( StandardCharsets.UTF_8 ) ) );
       }
     }
     return result;
@@ -441,7 +441,7 @@ public final class QrCodeTool
    * @return a segment containing the data
    * @throws IllegalArgumentException if the value is outside the range [0, 10<sup>6</sup>)
    */
-  public static QrSegment makeEci( final int assignVal )
+  public static QrSegment makeEciSegment( final int assignVal )
   {
     BitBuffer bb = new BitBuffer();
     if ( 0 <= assignVal && assignVal < ( 1 << 7 ) )
