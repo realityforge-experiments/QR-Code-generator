@@ -399,6 +399,7 @@ public final class QrCodeTool
    * @param text the text to be encoded, which can be any Unicode string
    * @return a list of segments containing the text
    */
+  @Nonnull
   private static List<QrSegment> makeSegments( @Nonnull final String text )
   {
     Objects.requireNonNull( text );
