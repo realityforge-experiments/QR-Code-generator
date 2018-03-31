@@ -38,6 +38,12 @@ import static org.realityforge.braincheck.Guards.*;
  */
 public final class QrCode
 {
+  // For use in getPenaltyScore(), when evaluating which mask is best.
+  private static final int PENALTY_N1 = 3;
+  private static final int PENALTY_N2 = 3;
+  private static final int PENALTY_N3 = 40;
+  private static final int PENALTY_N4 = 10;
+
   private final int _version;
   private final int _size;
   private final Ecc _errorCorrectionLevel;
@@ -665,10 +671,4 @@ public final class QrCode
     }
     return result;
   }
-
-  // For use in getPenaltyScore(), when evaluating which mask is best.
-  private static final int PENALTY_N1 = 3;
-  private static final int PENALTY_N2 = 3;
-  private static final int PENALTY_N3 = 40;
-  private static final int PENALTY_N4 = 10;
 }
