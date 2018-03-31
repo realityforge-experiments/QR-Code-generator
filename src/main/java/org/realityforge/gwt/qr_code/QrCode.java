@@ -179,6 +179,22 @@ public final class QrCode
     }
     return result;
   }
+
+  // the javascript drawCanvas equivalent
+	this.drawCanvas = function(scale, border, canvas) {
+			if (scale <= 0 || border < 0)
+				throw "Value out of range";
+			var width = (size + border * 2) * scale;
+			canvas.width = width;
+			canvas.height = width;
+			var ctx = canvas.getContext("2d");
+			for (var y = -border; y < size + border; y++) {
+				for (var x = -border; x < size + border; x++) {
+					ctx.fillStyle = this.getModule(x, y) ? "#000000" : "#FFFFFF";
+					ctx.fillRect((x + border) * scale, (y + border) * scale, scale, scale);
+				}
+			}
+		};
   */
 
   /**
