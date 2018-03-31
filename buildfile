@@ -2,7 +2,7 @@ require 'buildr/git_auto_version'
 require 'buildr/gpg'
 require 'buildr/gwt'
 
-desc 'React4j-Widget: Interoperability with GWT Widget API'
+desc 'GWT QR Code Generation'
 define 'gwt-qr-code' do
   project.group = 'org.realityforge.gwt.qr_code'
   compile.options.source = '1.8'
