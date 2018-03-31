@@ -3,6 +3,7 @@
 *.java text
 *.md text
 *.rake text
+*.xml text
 *.yaml text
 .gitattributes text
 .gitignore text
