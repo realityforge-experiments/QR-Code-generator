@@ -380,11 +380,12 @@ public final class QrCode
 
   // Returns a new byte string representing the given data with the appropriate error correction
   // codewords appended to it, based on this object's version and error correction level.
-  private byte[] appendErrorCorrection( byte[] data )
+  private byte[] appendErrorCorrection( @Nonnull final byte[] data )
   {
-    if ( data.length != QrCodeTool.getNumDataCodewords( _version, _errorCorrectionLevel ) )
+    if ( BrainCheckConfig.checkInvariants() )
     {
-      throw new IllegalArgumentException();
+      invariant( () -> QrCodeTool.isDataLengthValid( _version, _errorCorrectionLevel, data.length ),
+                 () -> "Invalid data length for version and correction level" );
     }
 
     // Calculate parameter numbers
@@ -426,24 +427,27 @@ public final class QrCode
 
   // Draws the given sequence of 8-bit codewords (data and error correction) onto the entire
   // data area of this QR Code symbol. Function modules need to be marked off before this is called.
-  private void drawCodewords( byte[] data )
+  private void drawCodewords( @Nonnull final byte[] data )
   {
     Objects.requireNonNull( data );
-    if ( data.length != QrCodeTool.getNumRawDataModules( _version ) / 8 )
+    if ( BrainCheckConfig.checkInvariants() )
     {
-      throw new IllegalArgumentException();
+      invariant( () -> data.length == QrCodeTool.getNumRawDataModules( _version ) / 8, () -> "Invalid data length" );
     }
 
-    int i = 0;  // Bit index into the data
+    int i = 0;
+    // Bit index into the data
     // Do the funny zigzag scan
     for ( int right = _size - 1; right >= 1; right -= 2 )
-    {  // Index of right column in each column pair
+    {
+      // Index of right column in each column pair
       if ( right == 6 )
       {
         right = 5;
       }
       for ( int vert = 0; vert < _size; vert++ )
-      {  // Vertical counter
+      {
+        // Vertical counter
         for ( int j = 0; j < 2; j++ )
         {
           int x = right - j;  // Actual x coordinate
@@ -459,9 +463,10 @@ public final class QrCode
         }
       }
     }
-    if ( i != data.length * 8 )
+    if ( BrainCheckConfig.checkInvariants() )
     {
-      throw new AssertionError();
+      final int v = i;
+      invariant( () -> v == data.length * 8, () -> "Unexpected remainder" );
     }
   }
 
@@ -469,12 +474,9 @@ public final class QrCode
   // properties, calling applyMask(m) twice with the same value is equivalent to no change at all.
   // This means it is possible to apply a mask, undo it, and try another mask. Note that a final
   // well-formed QR Code symbol needs exactly one mask applied (not zero, not two, etc.).
-  private void applyMask( int mask )
+  private void applyMask( final int mask )
   {
-    if ( mask < 0 || mask > 7 )
-    {
-      throw new IllegalArgumentException( "Mask value out of range" );
-    }
+    assert QrCodeTool.isMaskValid( mask );
     for ( int y = 0; y < _size; y++ )
     {
       for ( int x = 0; x < _size; x++ )
@@ -537,11 +539,7 @@ public final class QrCode
         applyMask( i );  // Undoes the mask due to XOR
       }
     }
-    if ( BrainCheckConfig.checkApiInvariants() )
-    {
-      final int m = actualMask;
-      apiInvariant( () -> m < 0 || m > 7, () -> "Invalid mask specified: " + m );
-    }
+    assert QrCodeTool.isMaskValid( actualMask );
 
     drawFormatBits( actualMask );  // Overwrite old format bits
     applyMask( actualMask );  // Apply the final choice of mask
