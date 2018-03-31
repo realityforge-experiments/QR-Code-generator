@@ -139,7 +139,7 @@ public final class QrCode
    * @param y the y coordinate, where 0 is the top edge and size&minus;1 is the bottom edge
    * @return the module's color, which is either false (white) or true (black)
    */
-  public boolean getModule( int x, int y )
+  public boolean getModule( final int x, final int y )
   {
     return 0 <= x && x < _size && 0 <= y && y < _size && _modules[ y ][ x ];
   }
