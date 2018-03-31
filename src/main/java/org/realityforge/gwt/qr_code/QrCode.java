@@ -216,7 +216,7 @@ public final class QrCode
 
     final StringBuilder sb = new StringBuilder();
     final int dimension = _size + border * 2;
-    sb.append( "<svg xmlns=\"http://www.w3.org/2000/svg\" _version=\"1.1\" viewBox=\"0 0 " )
+    sb.append( "<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\" viewBox=\"0 0 " )
       .append( dimension )
       .append( " " )
       .append( dimension )
