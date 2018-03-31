@@ -25,6 +25,7 @@ package org.realityforge.gwt.qr_code;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import org.realityforge.braincheck.BrainCheckConfig;
 import static org.realityforge.braincheck.Guards.*;
@@ -182,7 +183,8 @@ public final class QrCode
    * @param border the number of border modules to add, which must be non-negative
    * @return a string representing this QR Code as an SVG document
    */
-  public String toSvgString( final int border )
+  @Nonnull
+  public String toSvgString( @Nonnegative final int border )
   {
     if ( border < 0 )
     {
