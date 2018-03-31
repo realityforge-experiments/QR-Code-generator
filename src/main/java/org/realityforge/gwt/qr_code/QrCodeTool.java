@@ -174,9 +174,10 @@ public final class QrCodeTool
       {
         break;  // This version number is found to be suitable
       }
-      if ( version >= maxVersion )  // All versions in the range could not fit the given data
+      if ( BrainCheckConfig.checkInvariants() )
       {
-        throw new IllegalArgumentException( "Data too long" );
+        final int v = version;
+        invariant( () -> v < maxVersion, () -> "All versions in the range could not fit the given data" );
       }
     }
 
@@ -313,6 +314,11 @@ public final class QrCodeTool
     return MIN_VERSION <= version && MAX_VERSION >= version;
   }
 
+  static boolean isDataLengthValid( final int version, @Nonnull final Ecc errorCorrectionLevel, final int dataLength )
+  {
+    return dataLength == getNumDataCodewords( version, errorCorrectionLevel );
+  }
+
   /**
    * Returns a segment representing the specified binary data encoded in byte mode.
    *
@@ -341,12 +347,12 @@ public final class QrCodeTool
   public static QrSegment makeNumeric( @Nonnull final String digits )
   {
     Objects.requireNonNull( digits );
-    if ( !NUMERIC_REGEX.test( digits ) )
+    if ( BrainCheckConfig.checkInvariants() )
     {
-      throw new IllegalArgumentException( "String contains non-numeric characters" );
+      invariant( () -> NUMERIC_REGEX.test( digits ), () -> "String contains non-numeric characters" );
     }
 
-    BitBuffer bb = new BitBuffer();
+    final BitBuffer bb = new BitBuffer();
     int i;
     for ( i = 0; i + 3 <= digits.length(); i += 3 )  // Process groups of 3
     {
@@ -372,9 +378,10 @@ public final class QrCodeTool
   public static QrSegment makeAlphanumeric( @Nonnull final String text )
   {
     Objects.requireNonNull( text );
-    if ( !ALPHANUMERIC_REGEX.test( text ) )
+    if ( BrainCheckConfig.checkInvariants() )
     {
-      throw new IllegalArgumentException( "String contains unencodable characters in alphanumeric mode" );
+      invariant( () -> ALPHANUMERIC_REGEX.test( text ),
+                 () -> "String contains unencodable characters in alphanumeric mode" );
     }
 
     final BitBuffer bb = new BitBuffer();
