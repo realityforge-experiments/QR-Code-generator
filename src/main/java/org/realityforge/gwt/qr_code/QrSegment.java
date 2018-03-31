@@ -23,11 +23,13 @@
 
 package org.realityforge.gwt.qr_code;
 
+import elemental2.core.JsRegExp;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.regex.Pattern;
+import javax.annotation.Nonnegative;
+import javax.annotation.Nonnull;
 
 /**
  * Represents a character string to be encoded in a QR Code symbol. Each segment has
@@ -42,12 +44,12 @@ public final class QrSegment
   /**
    * Can test whether a string is encodable in numeric mode (such as by using {@link #makeNumeric(String)}).
    */
-  private static final Pattern NUMERIC_REGEX = Pattern.compile( "[0-9]*" );
+  private static final JsRegExp NUMERIC_REGEX = new JsRegExp( "[0-9]*" );
 
   /**
    * Can test whether a string is encodable in alphanumeric mode (such as by using {@link #makeAlphanumeric(String)}).
    */
-  private static final Pattern ALPHANUMERIC_REGEX = Pattern.compile( "[A-Z0-9 $%*+./:-]*" );
+  private static final JsRegExp ALPHANUMERIC_REGEX = new JsRegExp( "[A-Z0-9 $%*+./:-]*" );
 
   /**
    * The set of all legal characters in alphanumeric mode, where each character value maps to the index in the string.
@@ -83,7 +85,7 @@ public final class QrSegment
   public static QrSegment makeNumeric( String digits )
   {
     Objects.requireNonNull( digits );
-    if ( !NUMERIC_REGEX.matcher( digits ).matches() )
+    if ( !NUMERIC_REGEX.test( digits ) )
     {
       throw new IllegalArgumentException( "String contains non-numeric characters" );
     }
@@ -115,7 +117,7 @@ public final class QrSegment
   public static QrSegment makeAlphanumeric( String text )
   {
     Objects.requireNonNull( text );
-    if ( !ALPHANUMERIC_REGEX.matcher( text ).matches() )
+    if ( !ALPHANUMERIC_REGEX.test( text ) )
     {
       throw new IllegalArgumentException( "String contains unencodable characters in alphanumeric mode" );
     }
@@ -153,11 +155,11 @@ public final class QrSegment
     {
       ;  // Leave result empty
     }
-    else if ( NUMERIC_REGEX.matcher( text ).matches() )
+    else if ( NUMERIC_REGEX.test( text ) )
     {
       result.add( makeNumeric( text ) );
     }
-    else if ( ALPHANUMERIC_REGEX.matcher( text ).matches() )
+    else if ( ALPHANUMERIC_REGEX.test( text ) )
     {
       result.add( makeAlphanumeric( text ) );
     }
@@ -200,23 +202,22 @@ public final class QrSegment
     return new QrSegment( Mode.ECI, 0, bb );
   }
 
-
-
-	/*---- Instance fields ----*/
-
   /**
-   * The mode indicator for this segment. Never {@code null}.
+   * The mode indicator for this segment.
    */
+  @Nonnull
   public final Mode mode;
 
   /**
-   * The length of this segment's unencoded data, measured in characters. Always zero or positive.
+   * The length of this segment's unencoded data, measured in characters.
    */
+  @Nonnegative
   public final int numChars;
 
   /**
-   * The data bits of this segment. Accessed through {@link getBits()}. Not {@code null}.
+   * The data bits of this segment.
    */
+  @Nonnull
   final BitBuffer data;
 
 
