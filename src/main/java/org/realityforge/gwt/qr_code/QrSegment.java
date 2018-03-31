@@ -20,7 +20,6 @@
  *   out of or in connection with the Software or the use or other dealings in the
  *   Software.
  */
-
 package org.realityforge.gwt.qr_code;
 
 import java.util.Objects;
