@@ -53,6 +53,7 @@ CONTENT
     modules.each do |m|
       project.gwt([m], { :java_args => %w(-Xms512M -Xmx1024M),
                          :dependencies => dependencies,
+                         :compile_report_dir => project._(:target, :gwt_compile_reports, m),
                          :output_key => options[:output_key] || m })
     end
   end
