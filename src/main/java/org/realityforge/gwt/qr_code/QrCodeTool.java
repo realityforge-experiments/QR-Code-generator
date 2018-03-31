@@ -380,9 +380,11 @@ public final class QrCodeTool
     BitBuffer bb = new BitBuffer();
     int i;
     for ( i = 0; i + 2 <= text.length(); i += 2 )
-    {  // Process groups of 2
-      int temp = ALPHANUMERIC_CHARSET.indexOf( text.charAt( i ) ) * 45;
-      temp += ALPHANUMERIC_CHARSET.indexOf( text.charAt( i + 1 ) );
+    {
+      // Process groups of 2
+      final int temp =
+        ALPHANUMERIC_CHARSET.indexOf( text.charAt( i ) ) * 45 +
+        ALPHANUMERIC_CHARSET.indexOf( text.charAt( i + 1 ) );
       bb.appendBits( temp, 11 );
     }
     if ( i < text.length() )  // 1 character remaining
