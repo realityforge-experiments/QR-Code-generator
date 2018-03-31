@@ -37,23 +37,12 @@ import javax.annotation.Nonnull;
  */
 public final class QrSegment
 {
-  /**
-   * The mode indicator for this segment.
-   */
   @Nonnull
-  public final Mode mode;
-
-  /**
-   * The length of this segment's unencoded data, measured in characters.
-   */
+  private final Mode _mode;
   @Nonnegative
-  public final int numChars;
-
-  /**
-   * The data bits of this segment.
-   */
+  private final int _numChars;
   @Nonnull
-  final BitBuffer data;
+  private final BitBuffer _data;
 
   /**
    * Creates a new QR Code data segment with the specified parameters and data.
@@ -72,8 +61,40 @@ public final class QrSegment
     {
       throw new IllegalArgumentException( "Invalid value" );
     }
-    mode = md;
-    numChars = numCh;
-    this.data = data.duplicate();  // Make defensive copy
+    _mode = md;
+    _numChars = numCh;
+    this._data = data.duplicate();  // Make defensive copy
+  }
+
+  /**
+   * Return the mode indicator for this segment.
+   *
+   * @return the mode indicator for this segment.
+   */
+  @Nonnull
+  public Mode getMode()
+  {
+    return _mode;
+  }
+
+  /**
+   * Return the length of this segment's unencoded data, measured in characters.
+   *
+   * @return the length of this segment's unencoded data, measured in characters.
+   */
+  public int getNumChars()
+  {
+    return _numChars;
+  }
+
+  /**
+   * Return the data bits of this segment.
+   *
+   * @return the data bits of this segment.
+   */
+  @Nonnull
+  public BitBuffer getData()
+  {
+    return _data;
   }
 }

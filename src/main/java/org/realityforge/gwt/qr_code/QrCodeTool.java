@@ -115,15 +115,15 @@ public final class QrCodeTool
    * between modes (such as alphanumeric and binary) to encode text more efficiently.
    * This function is considered to be lower level than simply encoding text or binary data.</p>
    *
-   * @param segs the segments to encode
-   * @param ecl  the error correction level to use (will be boosted)
+   * @param segments the segments to encode
+   * @param ecl      the error correction level to use (will be boosted)
    * @return a QR Code representing the segments
    * @throws NullPointerException     if the list of segments, a segment, or the error correction level is {@code null}
    * @throws IllegalArgumentException if the data is too long to fit in the largest version QR Code at the ECL
    */
-  public static QrCode encodeSegments( @Nonnull final List<QrSegment> segs, @Nonnull final Ecc ecl )
+  public static QrCode encodeSegments( @Nonnull final List<QrSegment> segments, @Nonnull final Ecc ecl )
   {
-    return encodeSegments( segs, ecl, MIN_VERSION, MAX_VERSION, -1, true );
+    return encodeSegments( segments, ecl, MIN_VERSION, MAX_VERSION, -1, true );
   }
 
   /**
@@ -133,7 +133,7 @@ public final class QrCodeTool
    * between modes (such as alphanumeric and binary) to encode text more efficiently.
    * This function is considered to be lower level than simply encoding text or binary data.</p>
    *
-   * @param segs       the segments to encode
+   * @param segments   the segments to encode
    * @param ecl        the error correction level to use (may be boosted)
    * @param minVersion the minimum allowed version of the QR symbol (at least 1)
    * @param maxVersion the maximum allowed version of the QR symbol (at most 40)
@@ -144,14 +144,14 @@ public final class QrCodeTool
    * @throws IllegalArgumentException if 1 &le; minVersion &le; maxVersion &le; 40 is violated, or if mask
    *                                  &lt; &minus;1 or mask &gt; 7, or if the data is too long to fit in a QR Code at maxVersion at the ECL
    */
-  public static QrCode encodeSegments( @Nonnull final List<QrSegment> segs,
+  public static QrCode encodeSegments( @Nonnull final List<QrSegment> segments,
                                        @Nonnull Ecc ecl,
                                        int minVersion,
                                        int maxVersion,
                                        int mask,
                                        boolean boostEcl )
   {
-    Objects.requireNonNull( segs );
+    Objects.requireNonNull( segments );
     Objects.requireNonNull( ecl );
     if ( BrainCheckConfig.checkApiInvariants() )
     {
@@ -169,7 +169,7 @@ public final class QrCodeTool
     for ( version = minVersion; ; version++ )
     {
       int dataCapacityBits = getNumDataCodewords( version, ecl ) * 8;  // Number of data bits available
-      dataUsedBits = getTotalBits( segs, version );
+      dataUsedBits = getTotalBits( segments, version );
       if ( dataUsedBits != -1 && dataUsedBits <= dataCapacityBits )
       {
         break;  // This version number is found to be suitable
@@ -192,10 +192,10 @@ public final class QrCodeTool
     // Create the data bit string by concatenating all segments
     final int dataCapacityBits = getNumDataCodewords( version, ecl ) * 8;
     final BitBuffer bb = new BitBuffer();
-    for ( final QrSegment seg : segs )
+    for ( final QrSegment seg : segments )
     {
-      bb.appendBits( seg.mode.getModeBits(), 4 );
-      bb.appendBits( seg.numChars, seg.mode.numCharCountBits( version ) );
+      bb.appendBits( seg.getMode().getModeBits(), 4 );
+      bb.appendBits( seg.getNumChars(), seg.getMode().numCharCountBits( version ) );
       bb.appendData( seg );
     }
 
@@ -399,7 +399,7 @@ public final class QrCodeTool
    * @param text the text to be encoded, which can be any Unicode string
    * @return a list of segments containing the text
    */
-  public static List<QrSegment> makeSegments( @Nonnull final String text )
+  private static List<QrSegment> makeSegments( @Nonnull final String text )
   {
     Objects.requireNonNull( text );
 
@@ -458,23 +458,23 @@ public final class QrCodeTool
     return new QrSegment( Mode.ECI, 0, bb );
   }
 
-  private static int getTotalBits( @Nonnull final List<QrSegment> segs, final int version )
+  private static int getTotalBits( @Nonnull final List<QrSegment> segments, final int version )
   {
-    Objects.requireNonNull( segs );
+    Objects.requireNonNull( segments );
     apiInvariant( () -> isVersionValid( version ),
                   () -> "Version value specified '" + version + "' is out of range." );
 
     long result = 0;
-    for ( QrSegment seg : segs )
+    for ( QrSegment seg : segments )
     {
       Objects.requireNonNull( seg );
-      int ccbits = seg.mode.numCharCountBits( version );
+      int ccbits = seg.getMode().numCharCountBits( version );
       // Fail if segment length value doesn't fit in the length field's bit-width
-      if ( seg.numChars >= ( 1 << ccbits ) )
+      if ( seg.getNumChars() >= ( 1 << ccbits ) )
       {
         return -1;
       }
-      result += 4L + ccbits + seg.data.bitLength();
+      result += 4L + ccbits + seg.getData().bitLength();
       if ( result > Integer.MAX_VALUE )
       {
         return -1;

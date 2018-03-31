@@ -112,7 +112,7 @@ public final class BitBuffer
   public void appendData( final QrSegment seg )
   {
     Objects.requireNonNull( seg );
-    BitBuffer bb = seg.data;
+    BitBuffer bb = seg.getData();
     for ( int i = 0; i < bb._bitLength; i++, _bitLength++ )  // Append bit by bit
     {
       _data.set( _bitLength, bb._data.get( i ) );
