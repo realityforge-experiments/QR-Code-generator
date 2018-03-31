@@ -202,9 +202,6 @@ public final class QrCode
     }
 
     StringBuilder sb = new StringBuilder();
-    sb.append( "<?xml _version=\"1.0\" encoding=\"UTF-8\"?>\n" );
-    sb.append(
-      "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n" );
     final int dimension = _size + border * 2;
     sb.append( "<svg xmlns=\"http://www.w3.org/2000/svg\" _version=\"1.1\" viewBox=\"0 0 " )
       .append( dimension )
