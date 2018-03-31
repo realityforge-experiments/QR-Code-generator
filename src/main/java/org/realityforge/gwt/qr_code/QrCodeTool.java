@@ -377,7 +377,7 @@ public final class QrCodeTool
       throw new IllegalArgumentException( "String contains unencodable characters in alphanumeric mode" );
     }
 
-    BitBuffer bb = new BitBuffer();
+    final BitBuffer bb = new BitBuffer();
     int i;
     for ( i = 0; i + 2 <= text.length(); i += 2 )
     {
