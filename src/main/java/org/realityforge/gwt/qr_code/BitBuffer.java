@@ -24,6 +24,8 @@ package org.realityforge.gwt.qr_code;
 
 import java.util.BitSet;
 import java.util.Objects;
+import org.realityforge.braincheck.BrainCheckConfig;
+import static org.realityforge.braincheck.Guards.*;
 
 /**
  * An appendable sequence of bits (0's and 1's).
@@ -93,9 +95,9 @@ public final class BitBuffer
    */
   public void appendBits( final int val, final int len )
   {
-    if ( len < 0 || len > 31 || val >>> len != 0 )
+    if ( BrainCheckConfig.checkInvariants() )
     {
-      throw new IllegalArgumentException( "Value out of range" );
+      invariant( () -> !( len < 0 || len > 31 || val >>> len != 0 ), () -> "Value out of range " );
     }
     for ( int i = len - 1; i >= 0; i--, _bitLength++ )  // Append bit by bit
     {
