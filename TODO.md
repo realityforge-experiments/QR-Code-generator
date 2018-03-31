@@ -10,3 +10,5 @@ complete as there is too much un-said.
   - Port [BitBuffer](https://github.com/nayuki/Fast-QR-Code-generator/blob/master/src/io/nayuki/fastqrcodegen/BitBuffer.java)
 
 * Implement Canvas rendering
+
+* Add some basic tests that just verify the library produces what it currently produces
