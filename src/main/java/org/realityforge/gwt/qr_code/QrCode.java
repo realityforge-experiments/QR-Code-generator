@@ -115,6 +115,8 @@ public final class QrCode
    * The mask pattern used in this QR Code symbol, in the range 0 to 7 (i.e. unsigned 3-bit integer).
    * Note that even if a constructor was called with automatic masking requested
    * (_mask = -1), the resulting object will still have a mask value between 0 and 7.
+   *
+   * @return the mask
    */
   public int getMask()
   {
