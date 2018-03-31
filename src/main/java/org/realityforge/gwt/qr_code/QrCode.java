@@ -192,13 +192,10 @@ public final class QrCode
   @Nonnull
   public String toSvgString( @Nonnegative final int border )
   {
-    if ( border < 0 )
+    if ( BrainCheckConfig.checkApiInvariants() )
     {
-      throw new IllegalArgumentException( "Border must be non-negative" );
-    }
-    if ( _size + border * 2L > Integer.MAX_VALUE )
-    {
-      throw new IllegalArgumentException( "Border too large" );
+      apiInvariant( () -> border >= 0, () -> "Border must be non-negative" );
+      apiInvariant( () -> !( _size + border * 2L > Integer.MAX_VALUE ), () -> "Border too large" );
     }
 
     final StringBuilder sb = new StringBuilder();
