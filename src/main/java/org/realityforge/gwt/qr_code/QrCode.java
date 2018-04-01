@@ -221,8 +221,8 @@ public final class QrCode
       .append( " " )
       .append( dimension )
       .append( "\" stroke=\"none\">\n" )
-      .append( "  <rect width=\"100%\" height=\"100%\" fill=\"#FFFFFF\"/>\n" )
-      .append( "  <path d=\"" );
+      .append( "<rect width=\"100%\" height=\"100%\" fill=\"#FFFFFF\"/>\n" )
+      .append( "<path d=\"" );
     boolean head = true;
     for ( int y = -border; y < _size + border; y++ )
     {
