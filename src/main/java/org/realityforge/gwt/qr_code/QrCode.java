@@ -293,9 +293,10 @@ public final class QrCode
     }
     data = data << 10 | rem;
     data ^= 0x5412;  // uint15
-    if ( data >>> 15 != 0 )
+    if ( BrainCheckConfig.checkInvariants() )
     {
-      throw new AssertionError();
+      final int d = data;
+      invariant( () -> d >>> 15 == 0, () -> "Data alignment error" );
     }
 
     // Draw first copy
@@ -339,9 +340,10 @@ public final class QrCode
       rem = ( rem << 1 ) ^ ( ( rem >>> 11 ) * 0x1F25 );
     }
     int data = _version << 12 | rem;  // uint18
-    if ( data >>> 18 != 0 )
+    if ( BrainCheckConfig.checkInvariants() )
     {
-      throw new AssertionError();
+      final int d = data;
+      invariant( () -> d >>> 18 == 0, () -> "Data alignment error" );
     }
 
     // Draw two copies
@@ -521,11 +523,13 @@ public final class QrCode
           case 6:
             invert = ( x * y % 2 + x * y % 3 ) % 2 == 0;
             break;
-          case 7:
+          default:
+            if ( BrainCheckConfig.checkInvariants() )
+            {
+              invariant( () -> 7 == mask, () -> "Unhandled mask value" );
+            }
             invert = ( ( x + y ) % 2 + x * y % 3 ) % 2 == 0;
             break;
-          default:
-            throw new AssertionError();
         }
         _modules[ y ][ x ] ^= invert & !_isFunction[ y ][ x ];
       }
