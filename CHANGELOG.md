@@ -1,6 +1,7 @@
 # Change Log
 
-### Unreleased
+### [v0.02](https://github.com/realityforge/gwt-qr-code/tree/v0.02) (2018-04-01)
+[Full Changelog](https://github.com/realityforge/gwt-qr-code/compare/v0.01...v0.02)
 
 * Add support for rendering `QrCode` instances to html canvas via `QrCode.drawCanvas(...)`.
 * Convert several more invariant checks to use the `org.realityforge.braincheck` library so that they are
