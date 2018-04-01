@@ -22,11 +22,15 @@
  */
 package org.realityforge.gwt.qr_code;
 
+import elemental2.dom.CanvasRenderingContext2D;
+import elemental2.dom.DomGlobal;
+import elemental2.dom.HTMLCanvasElement;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
+import jsinterop.base.Js;
 import org.realityforge.braincheck.BrainCheckConfig;
 import static org.realityforge.braincheck.Guards.*;
 
@@ -145,7 +149,7 @@ public final class QrCode
   }
 
   /*
-   * Returns a new image object representing this QR Code, with the specified module scale and number
+   * Draw image on canvas representing this QR Code, with the specified module scale and number
    * of border modules. For example, the arguments scale=10, border=4 means to pad the QR Code symbol
    * with 4 white border modules on all four edges, then use 10*10 pixels to represent each module.
    * The resulting image only contains the hex colors 000000 and FFFFFF.
@@ -155,47 +159,40 @@ public final class QrCode
    * @return an image representing this QR Code, with padding and scaling
    * @throws IllegalArgumentException if the scale or border is out of range
    */
-  /*
-  public BufferedImage toImage( int scale, int border )
+  public void drawCanvas( @Nonnegative final double scale,
+                          @Nonnegative final int border,
+                          @Nonnull final HTMLCanvasElement canvas )
   {
-    if ( scale <= 0 || border < 0 )
+    if ( BrainCheckConfig.checkApiInvariants() )
     {
-      throw new IllegalArgumentException( "Value out of range" );
-    }
-    if ( border > Integer.MAX_VALUE / 2 || _size + border * 2L > Integer.MAX_VALUE / scale )
-    {
-      throw new IllegalArgumentException( "Scale or border too large" );
+      apiInvariant( () -> border >= 0, () -> "Border must be non-negative" );
+      apiInvariant( () -> scale >= 0, () -> "Scale must be non-negative" );
+      apiInvariant( () -> !( _size + border * 2L > Integer.MAX_VALUE / scale ), () -> "Scale or border too large" );
     }
 
-    BufferedImage result =
-      new BufferedImage( ( _size + border * 2 ) * scale, ( _size + border * 2 ) * scale, BufferedImage.TYPE_INT_RGB );
-    for ( int y = 0; y < result.getHeight(); y++ )
+    final int dimension = (int) ( ( _size + border * 2 ) * scale );
+    canvas.width = dimension;
+    canvas.height = dimension;
+    final CanvasRenderingContext2D context = Js.cast( canvas.getContext( "2d" ) );
+
+    // Clear the canvas
+    context.fillColor = "#FFFFFF";
+    context.fill();
+
+    // Set the color for all the modules
+    context.fillColor = "#FFFFFF";
+
+    for ( int y = -border; y < _size + border; y++ )
     {
-      for ( int x = 0; x < result.getWidth(); x++ )
+      for ( int x = -border; x < _size + border; x++ )
       {
-        boolean val = getModule( x / scale - border, y / scale - border );
-        result.setRGB( x, y, val ? 0x000000 : 0xFFFFFF );
+        if ( getModule( x, y ) )
+        {
+          context.fillRect( ( x + border ) * scale, ( y + border ) * scale, scale, scale );
+        }
       }
     }
-    return result;
   }
-
-  // the javascript drawCanvas equivalent
-	this.drawCanvas = function(scale, border, canvas) {
-			if (scale <= 0 || border < 0)
-				throw "Value out of range";
-			var width = (size + border * 2) * scale;
-			canvas.width = width;
-			canvas.height = width;
-			var ctx = canvas.getContext("2d");
-			for (var y = -border; y < size + border; y++) {
-				for (var x = -border; x < size + border; x++) {
-					ctx.fillStyle = this.getModule(x, y) ? "#000000" : "#FFFFFF";
-					ctx.fillRect((x + border) * scale, (y + border) * scale, scale, scale);
-				}
-			}
-		};
-  */
 
   /**
    * Based on the specified number of border modules to add as padding, this returns a

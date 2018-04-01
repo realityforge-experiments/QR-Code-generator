@@ -2,6 +2,7 @@
 
 ### Unreleased
 
+* Add support for rendering `QrCode` instances to html canvas via `QrCode.drawCanvas(...)`.
 * Convert several more invariant checks to use the `org.realityforge.braincheck` library so that they are
   optimized out in production builds.
 * Remove unused dependency `org.realityforge.anodoc`
