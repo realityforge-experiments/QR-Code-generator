@@ -22,7 +22,6 @@
  */
 package org.realityforge.gwt.qr_code;
 
-import elemental2.core.JsRegExp;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -58,14 +57,6 @@ public final class QrCodeTool
   };
   // @formatter:on
 
-  /**
-   * Can test whether a string is encodable in numeric mode (such as by using {@link #makeNumericSegment(String)}).
-   */
-  private static final JsRegExp NUMERIC_REGEX = new JsRegExp( "^[0-9]+$" );
-  /**
-   * Can test whether a string is encodable in alphanumeric mode (such as by using {@link #makeAlphanumericSegment(String)}).
-   */
-  private static final JsRegExp ALPHANUMERIC_REGEX = new JsRegExp( "^[A-Z0-9 $%*+./:-]*$" );
   /**
    * The set of all legal characters in alphanumeric mode, where each character value maps to the index in the string.
    */
@@ -280,7 +271,7 @@ public final class QrCodeTool
     Objects.requireNonNull( digits );
     if ( BrainCheckConfig.checkInvariants() )
     {
-      invariant( () -> NUMERIC_REGEX.test( digits ), () -> "String contains non-numeric characters" );
+      invariant( () -> isNumeric( digits ), () -> "String contains non-numeric characters" );
     }
 
     final BitBuffer bb = new BitBuffer();
@@ -311,8 +302,7 @@ public final class QrCodeTool
     Objects.requireNonNull( text );
     if ( BrainCheckConfig.checkInvariants() )
     {
-      invariant( () -> ALPHANUMERIC_REGEX.test( text ),
-                 () -> "String contains unencodable characters in alphanumeric mode" );
+      invariant( () -> isAlphaNumeric( text ), () -> "String contains unencodable characters in alphanumeric mode" );
     }
 
     final BitBuffer bb = new BitBuffer();
@@ -452,11 +442,11 @@ public final class QrCodeTool
     final List<QrSegment> result = new ArrayList<>();
     if ( !text.isEmpty() )
     {
-      if ( NUMERIC_REGEX.test( text ) )
+      if ( isNumeric( text ) )
       {
         result.add( makeNumericSegment( text ) );
       }
-      else if ( ALPHANUMERIC_REGEX.test( text ) )
+      else if ( isAlphaNumeric( text ) )
       {
         result.add( makeAlphanumericSegment( text ) );
       }
@@ -466,6 +456,56 @@ public final class QrCodeTool
       }
     }
     return result;
+  }
+
+  /**
+   * Return true if the specified string only contains characters that can be encoded using the numeric mode.
+   *
+   * @param value the value.
+   * @return true if value contains only numeric encodable characters.
+   */
+  private static boolean isNumeric( @Nonnull final String value )
+  {
+    final int length = value.length();
+    for ( int i = 0; i < length; i++ )
+    {
+      final char ch = value.charAt( i );
+      if ( '0' > ch || ch > '9' )
+      {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
+   * Return true if the specified string only contains characters that can be encoded using the alphanumeric mode.
+   *
+   * @param value the value.
+   * @return true if value contains only alphanumeric encodable characters.
+   */
+  private static boolean isAlphaNumeric( @Nonnull final String value )
+  {
+    final int length = value.length();
+    for ( int i = 0; i < length; i++ )
+    {
+      final char ch = value.charAt( i );
+      if ( ( ch < '0' || ch > '9' ) &&
+           ( ch < 'A' || ch > 'Z' ) &&
+           ' ' != ch &&
+           '$' != ch &&
+           '%' != ch &&
+           '*' != ch &&
+           '+' != ch &&
+           '.' != ch &&
+           '/' != ch &&
+           ':' != ch &&
+           '-' != ch )
+      {
+        return false;
+      }
+    }
+    return true;
   }
 
   private static int getTotalBits( @Nonnull final List<QrSegment> segments, final int version )

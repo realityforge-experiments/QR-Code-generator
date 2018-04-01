@@ -17,9 +17,6 @@ define 'gwt-qr-code' do
                :jsinterop_base_sources,
                :jsinterop_annotations,
                :jsinterop_annotations_sources,
-               :elemental2_core,
-               :elemental2_dom,
-               :elemental2_promise,
                :braincheck,
                :gwt_user
 
