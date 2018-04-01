@@ -12,7 +12,6 @@ define 'gwt-qr-code' do
   project.version = ENV['PRODUCT_VERSION'] if ENV['PRODUCT_VERSION']
 
   compile.with :javax_jsr305,
-               :anodoc,
                :jsinterop_base,
                :jsinterop_base_sources,
                :jsinterop_annotations,

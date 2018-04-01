@@ -2,6 +2,7 @@
 
 ### Unreleased
 
+* Remove unused dependency `org.realityforge.anodoc`
 * Remove dependency on the `elemental2` library by explicitly checking the characters that are in values using
   iteration rather than using an instance of javascripts `RegExp`. This has the added advantage that it increased
   the execution speed and could lead to code size decreases when the compiler can statically determine the segment
