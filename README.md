@@ -35,7 +35,7 @@ The simplest way to use the library is to add the dependency into the build syst
     &lt;dependency&gt;
        &lt;groupId&gt;org.realityforge.gwt.widget&lt;/groupId&gt;
        &lt;artifactId&gt;gwt-qr-code-core&lt;/artifactId&gt;
-       &lt;version&gt;<img src="https://img.shields.io/maven-central/v/org.realityforge.gwt.qr_code/gwt-qr-code-core.svg?label=latest%20release"/>&lt;/version&gt;
+       &lt;version&gt;<img src="https://img.shields.io/maven-central/v/org.realityforge.gwt.qr_code/gwt-qr-code.svg?label=&quot;%20&quot;"/>&lt;/version&gt;
     &lt;/dependency&gt;
 </pre>
 </code>
