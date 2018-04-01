@@ -19,8 +19,7 @@ define 'gwt-qr-code' do
                :elemental2_core,
                :elemental2_dom,
                :elemental2_promise,
-               :braincheck,
-               :gwt_user
+               :braincheck
 
   gwt_enhance(project)
 
