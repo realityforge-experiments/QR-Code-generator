@@ -25,6 +25,8 @@ define 'gwt-qr-code' do
 
   gwt_enhance(project)
 
+  test.using :testng
+
   package(:jar)
   package(:sources)
   package(:javadoc)
