@@ -41,13 +41,38 @@ The simplest way to use the library is to add the dependency into the build syst
 Then add the snippet `<inherits name='org.realityforge.gwt.qr_code.QrCode'/>` into the `.gwt.xml` module file. Then
 you can generate the svg via:
 
+Render a url qr code as SVG:
+
 ```java
 // Generate a simple text base url QR Code with High error correction
-final String svg = QrCodeTool.encodeText( "http://realityforge.org", Ecc.HIGH ).toSvgString( 2 );
+final QrCode qrCode = QrCodeTool.encodeText( "http://realityforge.org", Ecc.HIGH );
 
+// Render the qr code as a svg element
+final Element div = DomGlobal.document.createElement( "div" );
+div.setAttribute( "style", "width:200px" );
+div.innerHTML = qrCode.toSvgString( 2 );
+DomGlobal.document.body.appendChild( div );
+```
+
+Render a unicode qr code on canvas element:
+
+```java
 // Generate a ‎🎉 QR Code with medium error correction
-final String svg = QrCodeTool.encodeText( "\u200E\uD83C\uDF89", Ecc.MEDIUM ).toSvgString( 2 );
+final QrCode qrCode = QrCodeTool.encodeText( "\u200E\uD83C\uDF89", Ecc.MEDIUM );
 
+final HTMLCanvasElement canvas = (HTMLCanvasElement) DomGlobal.document.createElement( "canvas" );
+final int border = 2;
+// 8 pixels per "module"
+final double scale = 8;
+// Draw the canvas
+qrCode.drawCanvas( scale, border, canvas );
+DomGlobal.document.body.appendChild( canvas );
+
+```
+
+Manually render a numeric qr code:
+
+```java
 // Generate a QrCode using manual process
 final QrSegment segment = QrCodeTool.makeNumericSegment( "3141592653589793238462643383" );
 final QrCode qrCode = QrCodeTool.encodeSegments( Collections.singletonList( segment ), Ecc.HIGH, 5, 5, 2, false );
