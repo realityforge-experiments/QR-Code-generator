@@ -2,9 +2,11 @@
 * -text
 *.java text
 *.md text
+*.png binary
 *.rake text
 *.xml text
 *.yaml text
+*.yml text
 .gitattributes text
 .gitignore text
 .ruby-version text
