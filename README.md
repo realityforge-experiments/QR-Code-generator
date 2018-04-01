@@ -4,7 +4,6 @@
 
 [![Build Status](https://secure.travis-ci.org/realityforge/gwt-qr-code.png?branch=master)](http://travis-ci.org/realityforge/gwt-qr-code)
 [<img src="https://img.shields.io/maven-central/v/org.realityforge.gwt.qr_code/gwt-qr-code.svg?label=latest%20release"/>](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.realityforge.gwt.qr_code%22)
-[![codecov](https://codecov.io/gh/realityforge/gwt-qr-code/branch/master/graph/badge.svg)](https://codecov.io/gh/realityforge/gwt-qr-code)
 
 The library is a GWT port of [QR-Code-generator](https://github.com/nayuki/QR-Code-generator) that
 enables the generation of [QR Codes](https://en.wikipedia.org/wiki/QR_code). This original project aims
