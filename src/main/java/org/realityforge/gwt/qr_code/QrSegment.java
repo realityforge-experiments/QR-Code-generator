@@ -43,26 +43,35 @@ public final class QrSegment
   @Nonnegative
   private final int _numChars;
   @Nonnull
-  private final BitBuffer _data;
+  private final int[] _data;
+  @Nonnegative
+  private final int _bitLength;
 
   /**
    * Creates a new QR Code data segment with the specified parameters and data.
    *
-   * @param mode    the mode, which is not {@code null}
-   * @param numChars the data length in characters, which is non-negative
-   * @param data  the data bits of this segment, which is not {@code null}
+   * @param mode      the mode, which is not {@code null}
+   * @param numChars  the data length in characters, which is non-negative
+   * @param data      the data bits of this segment.
+   * @param bitLength the length of data in segment.
    * @throws NullPointerException     if the mode or bit buffer is {@code null}
    * @throws IllegalArgumentException if the character count is negative
    */
-  public QrSegment( final @Nonnull Mode mode, @Nonnegative final int numChars, @Nonnull final BitBuffer data )
+  public QrSegment( final @Nonnull Mode mode,
+                    @Nonnegative final int numChars,
+                    @Nonnull final int[] data,
+                    final int bitLength )
   {
     if ( BrainCheckConfig.checkInvariants() )
     {
       invariant( () -> numChars >= 0, () -> "numChars must be non-negative" );
+      invariant( () -> bitLength >= 0, () -> "bitLength must be non-negative" );
+      invariant( () -> bitLength <= data.length * 32, () -> "bitLength invalid value" );
     }
     _mode = Objects.requireNonNull( mode );
     _numChars = numChars;
-    _data = Objects.requireNonNull( data ).duplicate();
+    _data = Objects.requireNonNull( data );
+    _bitLength = bitLength;
   }
 
   /**
@@ -92,8 +101,14 @@ public final class QrSegment
    * @return the data bits of this segment.
    */
   @Nonnull
-  public BitBuffer getData()
+  public int[] getData()
   {
     return _data;
+  }
+
+  @Nonnegative
+  public int getBitLength()
+  {
+    return _bitLength;
   }
 }

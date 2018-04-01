@@ -16,6 +16,8 @@
 * Fix title of javadocs generated for project.
 * Make sure the generated pom has correct dependencies setup up and a more useful set of metadata regarding issue
   tracker, author, license etc.
+* Port the [BitBuffer](https://github.com/nayuki/Fast-QR-Code-generator/blob/master/src/io/nayuki/fastqrcodegen/BitBuffer.java)
+  from the `Fast-QR-Code-generator` library.
 
 ### [v0.01](https://github.com/realityforge/gwt-qr-code/tree/v0.01) (2018-04-01)
 [Full Changelog](https://github.com/realityforge/gwt-qr-code/compare/72921ece2999bd9a5dd6987743280a12a58d2242...v0.01)

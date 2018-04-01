@@ -188,21 +188,21 @@ public final class QrCodeTool
     {
       bb.appendBits( seg.getMode().getModeBits(), 4 );
       bb.appendBits( seg.getNumChars(), seg.getMode().numCharCountBits( version ) );
-      bb.appendData( seg );
+      bb.appendData( seg.getData(), seg.getBitLength() );
     }
 
     // Add terminator and pad up to a byte if applicable
-    bb.appendBits( 0, Math.min( 4, dataCapacityBits - bb.bitLength() ) );
-    bb.appendBits( 0, ( 8 - bb.bitLength() % 8 ) % 8 );
+    bb.appendBits( 0, Math.min( 4, dataCapacityBits - bb.getBitLength() ) );
+    bb.appendBits( 0, ( 8 - bb.getBitLength() % 8 ) % 8 );
 
     // Pad with alternate bytes until data capacity is reached
-    for ( int padByte = 0xEC; bb.bitLength() < dataCapacityBits; padByte ^= 0xEC ^ 0x11 )
+    for ( int padByte = 0xEC; bb.getBitLength() < dataCapacityBits; padByte ^= 0xEC ^ 0x11 )
     {
       bb.appendBits( padByte, 8 );
     }
     if ( BrainCheckConfig.checkInvariants() )
     {
-      invariant( () -> bb.bitLength() % 8 == 0, () -> "Invalid remainder." );
+      invariant( () -> bb.getBitLength() % 8 == 0, () -> "Invalid remainder." );
     }
 
     // Create the QR Code symbol
@@ -250,12 +250,12 @@ public final class QrCodeTool
   public static QrSegment makeBytesSegment( @Nonnull final byte[] data )
   {
     Objects.requireNonNull( data );
-    BitBuffer bb = new BitBuffer();
-    for ( byte b : data )
+    final int[] bits = new int[ ( data.length + 3 ) / 4 ];
+    for ( int i = 0; i < data.length; i++ )
     {
-      bb.appendBits( b & 0xFF, 8 );
+      bits[ i >>> 2 ] |= ( data[ i ] & 0xFF ) << ( ~i << 3 );
     }
-    return new QrSegment( Mode.BYTE, data.length, bb );
+    return new QrSegment( Mode.BYTE, data.length, bits, data.length * 8 );
   }
 
   /**
@@ -275,17 +275,25 @@ public final class QrCodeTool
     }
 
     final BitBuffer bb = new BitBuffer();
-    int i;
-    for ( i = 0; i + 3 <= digits.length(); i += 3 )  // Process groups of 3
+    int accumData = 0;
+    int accumCount = 0;
+    for ( int i = 0; i < digits.length(); i++ )
     {
-      bb.appendBits( Integer.parseInt( digits.substring( i, i + 3 ) ), 10 );
+      char c = digits.charAt( i );
+      accumData = accumData * 10 + ( c - '0' );
+      accumCount++;
+      if ( accumCount == 3 )
+      {
+        bb.appendBits( accumData, 10 );
+        accumData = 0;
+        accumCount = 0;
+      }
     }
-    int rem = digits.length() - i;
-    if ( rem > 0 )  // 1 or 2 digits remaining
+    if ( accumCount > 0 )  // 1 or 2 digits remaining
     {
-      bb.appendBits( Integer.parseInt( digits.substring( i ) ), rem * 3 + 1 );
+      bb.appendBits( accumData, accumCount * 3 + 1 );
     }
-    return new QrSegment( Mode.NUMERIC, digits.length(), bb );
+    return new QrSegment( Mode.NUMERIC, digits.length(), bb.getData(), bb.getBitLength() );
   }
 
   /**
@@ -306,20 +314,27 @@ public final class QrCodeTool
     }
 
     final BitBuffer bb = new BitBuffer();
-    int i;
-    for ( i = 0; i + 2 <= text.length(); i += 2 )
+    int accumData = 0;
+    int accumCount = 0;
+    final int length = text.length();
+    for ( int i = 0; i < length; i++ )
     {
-      // Process groups of 2
-      final int temp =
-        ALPHANUMERIC_CHARSET.indexOf( text.charAt( i ) ) * 45 +
-        ALPHANUMERIC_CHARSET.indexOf( text.charAt( i + 1 ) );
-      bb.appendBits( temp, 11 );
+      char c = text.charAt( i );
+      accumData = accumData * 45 + ALPHANUMERIC_CHARSET.indexOf( c );
+      accumCount++;
+      if ( 2 == accumCount )
+      {
+        bb.appendBits( accumData, 11 );
+        accumData = 0;
+        accumCount = 0;
+      }
     }
-    if ( i < text.length() )  // 1 character remaining
+    if ( accumCount > 0 )  // 1 character remaining
     {
-      bb.appendBits( ALPHANUMERIC_CHARSET.indexOf( text.charAt( i ) ), 6 );
+      bb.appendBits( accumData, 6 );
     }
-    return new QrSegment( Mode.ALPHANUMERIC, text.length(), bb );
+
+    return new QrSegment( Mode.ALPHANUMERIC, length, bb.getData(), bb.getBitLength() );
   }
 
   /**
@@ -332,7 +347,7 @@ public final class QrCodeTool
    */
   public static QrSegment makeEciSegment( final int assignVal )
   {
-    BitBuffer bb = new BitBuffer();
+    final BitBuffer bb = new BitBuffer();
     if ( 0 <= assignVal && assignVal < ( 1 << 7 ) )
     {
       bb.appendBits( assignVal, 8 );
@@ -354,7 +369,7 @@ public final class QrCodeTool
         fail( () -> "ECI assignment value out of range" );
       }
     }
-    return new QrSegment( Mode.ECI, 0, bb );
+    return new QrSegment( Mode.ECI, 0, bb.getData(), bb.getBitLength() );
   }
 
   // Returns the number of 8-bit data (i.e. not error correction) codewords contained in any
@@ -524,7 +539,7 @@ public final class QrCodeTool
       {
         return -1;
       }
-      result += 4L + ccbits + seg.getData().bitLength();
+      result += 4L + ccbits + seg.getBitLength();
       if ( result > Integer.MAX_VALUE )
       {
         return -1;

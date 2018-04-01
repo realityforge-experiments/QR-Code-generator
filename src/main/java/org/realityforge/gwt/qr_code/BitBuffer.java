@@ -22,8 +22,9 @@
  */
 package org.realityforge.gwt.qr_code;
 
-import java.util.BitSet;
+import java.util.Arrays;
 import java.util.Objects;
+import javax.annotation.Nonnull;
 import org.realityforge.braincheck.BrainCheckConfig;
 import static org.realityforge.braincheck.Guards.*;
 
@@ -32,24 +33,15 @@ import static org.realityforge.braincheck.Guards.*;
  */
 public final class BitBuffer
 {
-  private BitSet _data;
+  private int[] _data = new int[ 64 ];
   private int _bitLength;
-
-  /**
-   * Constructs an empty bit buffer (length 0).
-   */
-  public BitBuffer()
-  {
-    _data = new BitSet();
-    _bitLength = 0;
-  }
 
   /**
    * Returns the length of this sequence, which is a non-negative value.
    *
    * @return the length of this sequence
    */
-  public int bitLength()
+  public int getBitLength()
   {
     return _bitLength;
   }
@@ -63,11 +55,16 @@ public final class BitBuffer
    */
   public int getBit( int index )
   {
-    if ( index < 0 || index >= _bitLength )
+    if ( BrainCheckConfig.checkInvariants() )
     {
-      throw new IndexOutOfBoundsException();
+      invariant( () -> !( index < 0 || index >= _bitLength ), () -> "Index Out Of Bounds" );
     }
-    return _data.get( index ) ? 1 : 0;
+    return ( _data[ index >>> 5 ] >>> ~index ) & 1;
+  }
+
+  public int[] getData()
+  {
+    return _data;
   }
 
   /**
@@ -76,12 +73,17 @@ public final class BitBuffer
    *
    * @return this sequence as a new array of bytes (not {@code null})
    */
+  @Nonnull
   public byte[] getBytes()
   {
-    byte[] result = new byte[ ( _bitLength + 7 ) / 8 ];
-    for ( int i = 0; i < _bitLength; i++ )
+    if ( BrainCheckConfig.checkInvariants() )
     {
-      result[ i >>> 3 ] |= _data.get( i ) ? 1 << ( 7 - ( i & 7 ) ) : 0;
+      invariant( () -> _bitLength % 8 == 0, () -> "Data is not a whole number of bytes" );
+    }
+    final byte[] result = new byte[ _bitLength / 8 ];
+    for ( int i = 0; i < result.length; i++ )
+    {
+      result[ i ] = (byte) ( _data[ i >>> 2 ] >>> ( ~i << 3 ) );
     }
     return result;
   }
@@ -90,47 +92,85 @@ public final class BitBuffer
    * Appends the specified number of low bits of the specified value
    * to this sequence. Requires 0 &le; val &lt; 2<sup>len</sup>.
    *
-   * @param val the value to append
+   * @param value the value to append
    * @param len the number of low bits in the value to take
    */
-  public void appendBits( final int val, final int len )
+  public void appendBits( final int value, final int len )
   {
     if ( BrainCheckConfig.checkInvariants() )
     {
-      invariant( () -> !( len < 0 || len > 31 || val >>> len != 0 ), () -> "Value out of range " );
+      invariant( () -> !( len < 0 || len > 31 || value >>> len != 0 ), () -> "Value out of range" );
     }
-    for ( int i = len - 1; i >= 0; i--, _bitLength++ )  // Append bit by bit
+    int v = value;
+    int l = len;
+    if ( _bitLength + l + 1 > _data.length << 5 )
     {
-      _data.set( _bitLength, ( ( val >>> i ) & 1 ) != 0 );
+      _data = Arrays.copyOf( _data, _data.length * 2 );
     }
+    assert _bitLength + l <= _data.length << 5;
+
+    int remain = 32 - ( _bitLength & 0x1F );
+    assert 1 <= remain && remain <= 32;
+    if ( remain < l )
+    {
+      _data[ _bitLength >>> 5 ] |= v >>> ( l - remain );
+      _bitLength += remain;
+      assert ( _bitLength & 0x1F ) == 0;
+      l -= remain;
+      v &= ( 1 << l ) - 1;
+      remain = 32;
+    }
+    _data[ _bitLength >>> 5 ] |= v << ( remain - l );
+    _bitLength += l;
   }
 
   /**
    * Appends the bit _data of the specified segment to this bit buffer.
    *
-   * @param seg the segment whose _data to append (not {@code null})
-   * @throws NullPointerException if the segment is {@code null}
+   * @param vals the data to append
    */
-  public void appendData( final QrSegment seg )
+  public void appendData( @Nonnull final int[] vals, final int len )
   {
-    Objects.requireNonNull( seg );
-    BitBuffer bb = seg.getData();
-    for ( int i = 0; i < bb._bitLength; i++, _bitLength++ )  // Append bit by bit
+    Objects.requireNonNull( vals );
+    if ( len == 0 )
     {
-      _data.set( _bitLength, bb._data.get( i ) );
+      return;
     }
-  }
+    if ( len < 0 || len > vals.length * 32 )
+    {
+      throw new IllegalArgumentException( "Value out of range" );
+    }
+    int wholeWords = len / 32;
+    int tailBits = len % 32;
+    if ( tailBits > 0 && vals[ wholeWords ] << tailBits != 0 )
+    {
+      throw new IllegalArgumentException( "Last word must have low bits clear" );
+    }
 
-  /**
-   * Returns a copy of this bit buffer object.
-   *
-   * @return a copy of this bit buffer object
-   */
-  public BitBuffer duplicate()
-  {
-    final BitBuffer result = new BitBuffer();
-    result._data = (BitSet) _data.clone();
-    result._bitLength = _bitLength;
-    return result;
+    while ( _bitLength + len > _data.length * 32 )
+    {
+      _data = Arrays.copyOf( _data, _data.length * 2 );
+    }
+
+    int shift = _bitLength % 32;
+    if ( shift == 0 )
+    {
+      System.arraycopy( vals, 0, _data, _bitLength / 32, ( len + 31 ) / 32 );
+      _bitLength += len;
+    }
+    else
+    {
+      for ( int i = 0; i < wholeWords; i++ )
+      {
+        int word = vals[ i ];
+        _data[ _bitLength >>> 5 ] |= word >>> shift;
+        _bitLength += 32;
+        _data[ _bitLength >>> 5 ] = word << ( 32 - shift );
+      }
+      if ( tailBits > 0 )
+      {
+        appendBits( vals[ wholeWords ] >>> ( 32 - tailBits ), tailBits );
+      }
+    }
   }
 }
