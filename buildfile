@@ -31,10 +31,10 @@ define 'gwt-qr-code' do
 
   doc.
     using(:javadoc,
-          :windowtitle => 'React4j Widget API Documentation',
+          :windowtitle => 'GWT QR Code API Documentation',
           :linksource => true,
           :timestamp => false,
-          :link => %w(https://docs.oracle.com/javase/8/docs/api)
+          :link => %w(https://docs.oracle.com/javase/8/docs/api http://www.gwtproject.org/javadoc/latest/)
     )
 
   iml.excluded_directories << project._('tmp')
