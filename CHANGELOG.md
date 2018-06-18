@@ -1,5 +1,7 @@
 # Change Log
 
+### Unreleased
+
 ### [v0.03](https://github.com/realityforge/gwt-qr-code/tree/v0.03) (2018-06-18)
 [Full Changelog](https://github.com/realityforge/gwt-qr-code/compare/v0.02...v0.03)
 
