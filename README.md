@@ -33,7 +33,7 @@ The simplest way to use the library is to add the dependency into the build syst
 <dependency>
    <groupId>org.realityforge.gwt.qr_code</groupId>
    <artifactId>gwt-qr-code</artifactId>
-   <version>0.02</version>
+   <version>0.03</version>
 </dependency>
 ```
 
