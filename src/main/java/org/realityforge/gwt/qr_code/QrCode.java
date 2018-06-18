@@ -23,7 +23,6 @@
 package org.realityforge.gwt.qr_code;
 
 import elemental2.dom.CanvasRenderingContext2D;
-import elemental2.dom.DomGlobal;
 import elemental2.dom.HTMLCanvasElement;
 import java.util.Arrays;
 import java.util.List;
