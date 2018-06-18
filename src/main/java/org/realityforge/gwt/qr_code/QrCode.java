@@ -27,7 +27,6 @@ import elemental2.dom.HTMLCanvasElement;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import jsinterop.base.Js;
 import org.realityforge.braincheck.BrainCheckConfig;
@@ -158,9 +157,7 @@ public final class QrCode
    * @return an image representing this QR Code, with padding and scaling
    * @throws IllegalArgumentException if the scale or border is out of range
    */
-  public void drawCanvas( @Nonnegative final double scale,
-                          @Nonnegative final int border,
-                          @Nonnull final HTMLCanvasElement canvas )
+  public void drawCanvas( final double scale, final int border, @Nonnull final HTMLCanvasElement canvas )
   {
     if ( BrainCheckConfig.checkApiInvariants() )
     {
@@ -202,7 +199,7 @@ public final class QrCode
    * @return a string representing this QR Code as an SVG document
    */
   @Nonnull
-  public String toSvgString( @Nonnegative final int border )
+  public String toSvgString( final int border )
   {
     if ( BrainCheckConfig.checkApiInvariants() )
     {

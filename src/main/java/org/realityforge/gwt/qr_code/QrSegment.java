@@ -23,7 +23,6 @@
 package org.realityforge.gwt.qr_code;
 
 import java.util.Objects;
-import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import org.realityforge.braincheck.BrainCheckConfig;
 import static org.realityforge.braincheck.Guards.*;
@@ -40,11 +39,9 @@ public final class QrSegment
 {
   @Nonnull
   private final Mode _mode;
-  @Nonnegative
   private final int _numChars;
   @Nonnull
   private final int[] _data;
-  @Nonnegative
   private final int _bitLength;
 
   /**
@@ -57,10 +54,7 @@ public final class QrSegment
    * @throws NullPointerException     if the mode or bit buffer is {@code null}
    * @throws IllegalArgumentException if the character count is negative
    */
-  public QrSegment( final @Nonnull Mode mode,
-                    @Nonnegative final int numChars,
-                    @Nonnull final int[] data,
-                    final int bitLength )
+  public QrSegment( @Nonnull final Mode mode, final int numChars, @Nonnull final int[] data, final int bitLength )
   {
     if ( BrainCheckConfig.checkInvariants() )
     {
@@ -106,7 +100,6 @@ public final class QrSegment
     return _data;
   }
 
-  @Nonnegative
   public int getBitLength()
   {
     return _bitLength;
