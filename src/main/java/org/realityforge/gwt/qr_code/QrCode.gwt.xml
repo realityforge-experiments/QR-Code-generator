@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module>
-  <inherits name="org.realityforge.braincheck.BrainCheck"/>
-  <inherits name="elemental2.dom.Dom"/>
+  <inherits name='org.realityforge.braincheck.BrainCheck'/>
+  <inherits name='elemental2.dom.Dom'/>
 
   <source path=''/>
 </module>
