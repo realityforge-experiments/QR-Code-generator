@@ -13,7 +13,8 @@
 # License for the specific language governing permissions and limitations under
 # the License.
 
-raise 'Buildr addon already integrated into buildr code' unless Buildr::VERSION.to_s == '1.5.5'
+raise 'Patch already integrated into buildr code' unless Buildr::VERSION.to_s == '1.5.6'
+require 'buildr/gwt'
 
 module Buildr
   module GWT
@@ -114,8 +115,8 @@ module Buildr
           ) + validation_deps
         elsif v == '2.8.2'
           %w(
-              com.google.jsinterop:jsinterop-annotations:jar:1.0.1
-              com.google.jsinterop:jsinterop-annotations:jar:sources:1.0.1
+              com.google.jsinterop:jsinterop-annotations:jar:1.0.2
+              com.google.jsinterop:jsinterop-annotations:jar:sources:1.0.2
               org.w3c.css:sac:jar:1.3
               com.google.gwt:gwt-dev:jar:2.8.2
               com.google.gwt:gwt-user:jar:2.8.2
@@ -238,11 +239,6 @@ module Buildr
     module ProjectExtension
       include Extension
 
-      after_define(:doc) do |project|
-        # Remove gwt artifacts when performing javadocs as the gwt jars have invalid source files
-        project.doc.classpath.delete_if { |f| f.to_s =~ /.*\/com\/google\/gwt\/gwt-.*/ }
-      end
-
       first_time do
         desc 'Run C22 to GSS converter. Set css files via environment variable CSS_FILES'
         task('css2gss') do
@@ -276,8 +272,10 @@ module Buildr
         Buildr::GWT.dependencies(version).each do |d|
           a = artifact(d)
           a.invoke if a.respond_to?(:invoke)
-          project.iml.main_dependencies << a unless !project.iml? || existing_deps.include?(a.to_s)
-          project.compile.dependencies << a unless existing_deps.include?(a.to_s)
+          unless options[:skip_merge_gwt_dependencies]
+            project.iml.main_dependencies << a unless !project.iml? || existing_deps.include?(a.to_s)
+            project.compile.dependencies << a unless existing_deps.include?(a.to_s)
+          end
           additional_gwt_deps << a
         end
 
