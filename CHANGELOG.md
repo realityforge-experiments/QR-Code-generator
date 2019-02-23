@@ -2,7 +2,7 @@
 
 ### Unreleased
 
-* Upgrade the `org.realityforge.com.google.elemental2` artifacts to version `1.0.0-b17-6897368`.
+* Upgrade the `org.realityforge.com.google.elemental2` artifacts to version `1.0.0-b18-f3472e7`.
 * Remove deployment from TravisCI infrastructure as it is no longer feasible.
 
 ### [v0.03](https://github.com/realityforge/gwt-qr-code/tree/v0.03) (2018-06-18)
