@@ -4,7 +4,7 @@
 
 * Upgrade the `org.realityforge.braincheck` artifact to version `1.13.0`.
 * Upgrade the `org.realityforge.com.google.jsinterop` artifact to version `1.0.0-b2-e6d791f`.
-* Upgrade the `org.realityforge.com.google.elemental2` artifacts to version `1.0.0-b19-fb227e3`.
+* Upgrade the `org.realityforge.com.google.elemental2` artifacts to version `1.0.0-b20-bfe6e22`.
 * Remove deployment from TravisCI infrastructure as it is no longer feasible.
 
 ### [v0.03](https://github.com/realityforge/gwt-qr-code/tree/v0.03) (2018-06-18)
