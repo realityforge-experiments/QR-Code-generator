@@ -4,7 +4,7 @@
 
 * Upgrade the `org.realityforge.javax.annotation` artifact to version `1.0.1`.
 * Upgrade the `au.com.stocksoftware.idea.codestyle` artifact to version `1.14`.
-* Upgrade the `org.realityforge.braincheck` artifact to version `1.24.0`.
+* Upgrade the `org.realityforge.braincheck` artifact to version `1.25.0`.
 * Upgrade the `org.realityforge.com.google.jsinterop` artifact to version `1.0.0-b2-e6d791f`.
 * Upgrade the `org.realityforge.com.google.elemental2` artifacts to version `2.25`.
 * Remove deployment from TravisCI infrastructure as it is no longer feasible.
