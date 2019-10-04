@@ -23,4 +23,4 @@ artifacts:
   elemental2_dom: org.realityforge.com.google.elemental2:elemental2-dom:jar:2.25
   elemental2_promise: org.realityforge.com.google.elemental2:elemental2-promise:jar:2.25
 
-  braincheck: org.realityforge.braincheck:braincheck:jar:1.23.0
+  braincheck: org.realityforge.braincheck:braincheck:jar:1.24.0
