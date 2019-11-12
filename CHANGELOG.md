@@ -6,7 +6,7 @@
 * Upgrade the `au.com.stocksoftware.idea.codestyle` artifact to version `1.14`.
 * Upgrade the `org.realityforge.braincheck` artifact to version `1.25.0`.
 * Upgrade the `org.realityforge.com.google.jsinterop` artifact to version `1.0.0-b2-e6d791f`.
-* Upgrade the `org.realityforge.com.google.elemental2` artifacts to version `2.25`.
+* Upgrade the `org.realityforge.com.google.elemental2` artifacts to version `2.27`.
 * Remove deployment from TravisCI infrastructure as it is no longer feasible.
 
 ### [v0.03](https://github.com/realityforge/gwt-qr-code/tree/v0.03) (2018-06-18) · [Full Changelog](https://github.com/realityforge/gwt-qr-code/compare/v0.02...v0.03)
