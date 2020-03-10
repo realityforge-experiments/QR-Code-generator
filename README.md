@@ -1,3 +1,7 @@
+> Project Archived: The code works perfectly well but the author is no longer using the library.
+
+---
+
 <p align="center"><img src="/docs/logo.png" alt="GWT QR Code" width="120"></p>
 
 # GWT QR Code
